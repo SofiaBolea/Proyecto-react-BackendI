@@ -16,6 +16,13 @@ Este proyecto implementa un servidor basado en Node.js y Express para gestionar 
 
 El servidor escuchará en el puerto 8080.
 
+## Funcionalidades Actuales
+
+- **Gestión de Productos:** Permite agregar, eliminar y modificar productos en los archivos JSON que funcionan como base de datos para este caso.
+- **Gestión de Carritos:** Permite crear, eliminar y actualizar carritos de compra.
+- **Persistencia de Datos:** Los datos se almacenan en archivos JSON para su fácil acceso y manipulación.
+- **Interfaz de Usuario:** Se incluye una interfaz básica en HTML para interactuar con el servidor.
+
 ## Endpoints
 
 ### Productos (/products)

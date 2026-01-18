@@ -1,0 +1,15 @@
+{
+  "name": "entrega1",
+  "version": "1.0.0",
+  "description": "Servidor para gestión de productos y carritos",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}

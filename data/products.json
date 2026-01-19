@@ -8,7 +8,10 @@
     "status": true,
     "stock": 25,
     "category": "Periféricos",
-    "thumbnails": ["https://images.example.com/hyperx.jpg"]
+    "thumbnails": [
+      "https://images.example.com/hyperx.jpg",
+      "https://images.example.com/hyperx.jpg"
+    ]
   },
   {
     "id": "b2c3d4e5-f6g7-8h9i-0j1k-l2m3n4o5p6q7",
@@ -19,7 +22,9 @@
     "status": true,
     "stock": 15,
     "category": "Periféricos",
-    "thumbnails": ["https://images.example.com/logitech-gpro.jpg"]
+    "thumbnails": [
+      "https://images.example.com/logitech-gpro.jpg"
+    ]
   },
   {
     "id": "c3d4e5f6-g7h8-9i0j-1k2l-m3n4o5p6q7r8",
@@ -30,7 +35,9 @@
     "status": true,
     "stock": 40,
     "category": "Periféricos",
-    "thumbnails": ["https://images.example.com/razer.jpg"]
+    "thumbnails": [
+      "https://images.example.com/razer.jpg"
+    ]
   },
   {
     "id": "d4e5f6g7-h8i9-0j1k-2l3m-n4o5p6q7r8s9",
@@ -41,7 +48,9 @@
     "status": true,
     "stock": 10,
     "category": "Monitores",
-    "thumbnails": ["https://images.example.com/samsung-g5.jpg"]
+    "thumbnails": [
+      "https://images.example.com/samsung-g5.jpg"
+    ]
   },
   {
     "id": "e5f6g7h8-i9j0-1k2l-3m4n-o5p6q7r8s9t0",
@@ -52,7 +61,9 @@
     "status": true,
     "stock": 30,
     "category": "Hardware",
-    "thumbnails": ["https://images.example.com/ryzen5.jpg"]
+    "thumbnails": [
+      "https://images.example.com/ryzen5.jpg"
+    ]
   },
   {
     "id": "f6g7h8i9-j0k1-2l3m-4n5o-p6q7r8s9t0u1",
@@ -63,7 +74,9 @@
     "status": true,
     "stock": 5,
     "category": "Hardware",
-    "thumbnails": ["https://images.example.com/rtx3060.jpg"]
+    "thumbnails": [
+      "https://images.example.com/rtx3060.jpg"
+    ]
   },
   {
     "id": "g7h8i9j0-k1l2-3m4n-5o6p-q7r8s9t0u1v2",
@@ -74,7 +87,9 @@
     "status": true,
     "stock": 50,
     "category": "Hardware",
-    "thumbnails": ["https://images.example.com/corsair-ram.jpg"]
+    "thumbnails": [
+      "https://images.example.com/corsair-ram.jpg"
+    ]
   },
   {
     "id": "h8i9j0k1-l2m3-4n5o-6p7q-r8s9t0u1v2w3",
@@ -85,7 +100,9 @@
     "status": true,
     "stock": 20,
     "category": "Almacenamiento",
-    "thumbnails": ["https://images.example.com/wd-black.jpg"]
+    "thumbnails": [
+      "https://images.example.com/wd-black.jpg"
+    ]
   },
   {
     "id": "i9j0k1l2-m3n4-5o6p-7q8r-s9t0u1v2w3x4",
@@ -96,7 +113,9 @@
     "status": true,
     "stock": 12,
     "category": "Hardware",
-    "thumbnails": ["https://images.example.com/corsair-psu.jpg"]
+    "thumbnails": [
+      "https://images.example.com/corsair-psu.jpg"
+    ]
   },
   {
     "id": "j0k1l2m3-n4o5-6p7q-8r9s-t0u1v2w3x4y5",
@@ -107,7 +126,9 @@
     "status": true,
     "stock": 8,
     "category": "Gabinetes",
-    "thumbnails": ["https://images.example.com/nzxt.jpg"]
+    "thumbnails": [
+      "https://images.example.com/nzxt.jpg"
+    ]
   },
   {
     "id": "k1l2m3n4-o5p6-7q8r-9s0t-u1v2w3x4y5z6",
@@ -118,7 +139,9 @@
     "status": true,
     "stock": 4,
     "category": "Mobiliario",
-    "thumbnails": ["https://images.example.com/dxracer.jpg"]
+    "thumbnails": [
+      "https://images.example.com/dxracer.jpg"
+    ]
   },
   {
     "id": "l2m3n4o5-p6q7-8r9s-0t1u-v2w3x4y5z6a7",
@@ -129,7 +152,9 @@
     "status": true,
     "stock": 18,
     "category": "Streaming",
-    "thumbnails": ["https://images.example.com/blue-yeti.jpg"]
+    "thumbnails": [
+      "https://images.example.com/blue-yeti.jpg"
+    ]
   },
   {
     "id": "m3n4o5p6-q7r8-9s0t-1u2v-w3x4y5z6a7b8",
@@ -140,7 +165,9 @@
     "status": true,
     "stock": 22,
     "category": "Streaming",
-    "thumbnails": ["https://images.example.com/c920.jpg"]
+    "thumbnails": [
+      "https://images.example.com/c920.jpg"
+    ]
   },
   {
     "id": "n4o5p6q7-r8s9-0t1u-2v3w-x4y5z6a7b8c9",
@@ -151,7 +178,9 @@
     "status": true,
     "stock": 60,
     "category": "Accesorios",
-    "thumbnails": ["https://images.example.com/mousepad.jpg"]
+    "thumbnails": [
+      "https://images.example.com/mousepad.jpg"
+    ]
   },
   {
     "id": "o5p6q7r8-s9t0-1u2v-3w4x-y5z6a7b8c9d0",
@@ -162,7 +191,9 @@
     "status": true,
     "stock": 14,
     "category": "Almacenamiento",
-    "thumbnails": ["https://images.example.com/seagate.jpg"]
+    "thumbnails": [
+      "https://images.example.com/seagate.jpg"
+    ]
   },
   {
     "id": "p6q7r8s9-t0u1-2v3w-4x5y-z6a7b8c9d0e1",
@@ -173,7 +204,9 @@
     "status": true,
     "stock": 20,
     "category": "Consolas",
-    "thumbnails": ["https://images.example.com/xbox-controller.jpg"]
+    "thumbnails": [
+      "https://images.example.com/xbox-controller.jpg"
+    ]
   },
   {
     "id": "q7r8s9t0-u1v2-3w4x-5y6z-a7b8c9d0e1f2",
@@ -184,7 +217,9 @@
     "status": true,
     "stock": 7,
     "category": "Refrigeración",
-    "thumbnails": ["https://images.example.com/noctua.jpg"]
+    "thumbnails": [
+      "https://images.example.com/noctua.jpg"
+    ]
   },
   {
     "id": "r8s9t0u1-v2w3-4x5y-6z7a-b8c9d0e1f2g3",
@@ -195,7 +230,9 @@
     "status": true,
     "stock": 3,
     "category": "Laptops",
-    "thumbnails": ["https://images.example.com/asus-tuf.jpg"]
+    "thumbnails": [
+      "https://images.example.com/asus-tuf.jpg"
+    ]
   },
   {
     "id": "s9t0u1v2-w3x4-5y6z-7a8b-c9d0e1f2g3h4",
@@ -206,7 +243,9 @@
     "status": true,
     "stock": 11,
     "category": "Redes",
-    "thumbnails": ["https://images.example.com/tplink.jpg"]
+    "thumbnails": [
+      "https://images.example.com/tplink.jpg"
+    ]
   },
   {
     "id": "t0u1v2w3-x4y5-6z7a-8b9c-d0e1f2g3h4i5",
@@ -217,6 +256,8 @@
     "status": true,
     "stock": 9,
     "category": "Audio",
-    "thumbnails": ["https://images.example.com/edifier.jpg"]
+    "thumbnails": [
+      "https://images.example.com/edifier.jpg"
+    ]
   }
 ]

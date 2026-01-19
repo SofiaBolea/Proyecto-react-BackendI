@@ -1,0 +1,28 @@
+[
+  {
+    "id": "0646062e-bea1-4fba-91c9-4d36ec2a9b78",
+    "products": [
+      {
+        "product": "e5f6g7h8-i9j0-1k2l-3m4n-o5p6q7r8s9t0",
+        "quantity": 3
+      },
+      {
+        "product": "j0k1l2m3-n4o5-6p7q-8r9s-t0u1v2w3x4y5",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "2a2ad6db-519b-4821-8fb7-0298a57ea791",
+    "products": [
+      {
+        "product": "j0k1l2m3-n4o5-6p7q-8r9s-t0u1v2w3x4y5",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "e6e6035f-18b8-4444-a1d5-5ed2989f203c",
+    "products": []
+  }
+]

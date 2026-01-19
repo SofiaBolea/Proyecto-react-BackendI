@@ -32,7 +32,6 @@ function showMessageModal(message, type = 'info') {
     modal.show();
 }
 
-// 1. CAMBIO: El ID debe coincidir con el del nuevo HTML
 const form = document.getElementById('createProductForm'); 
 
 form.addEventListener('submit', async (e) => {
@@ -44,17 +43,12 @@ form.addEventListener('submit', async (e) => {
     
     data.forEach((value, key) => obj[key] = value);
 
-    // --- 2. CAMBIO: Conversión de tipos de datos ---
-    // El servidor espera Números, pero el formulario siempre entrega Texto.
-    // Convertimos "1500" a 1500 (número real).
+  
     obj.price = Number(obj.price);
     obj.stock = Number(obj.stock);
 
-    // --- 3. CAMBIO: Formato de Imágenes ---
-    // El servidor espera un array ["url"], pero el input es un string simple.
-    // Si escribieron algo, lo metemos en un array. Si no, mandamos array vacío [].
-    obj.thumbnails = obj.thumbnail ? [obj.thumbnail] : [];
-    delete obj.thumbnail; // Borramos la propiedad vieja para no ensuciar el objeto
+    obj.thumbnails = obj.thumbnails ? [obj.thumbnails] : [];
+    delete obj.thumbnails; 
 
     try {
 

@@ -91,6 +91,11 @@
         <h1 class="display-4 text-primary">
           <i class="fas fa-boxes"></i> Gestión de Productos
         </h1>
+        <div class="mt-3">
+          <button id="createCartBtn" class="btn btn-secondary">
+            <i class="fas fa-shopping-cart"></i> Crear Carrito
+          </button>
+        </div>
       </header>
 
       <div class="row">
@@ -214,6 +219,36 @@
                     </tr>
                   </thead>
                   <tbody id="productsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de Carritos -->
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-shopping-cart"></i> Listado de Carritos</span>
+              <button class="btn btn-sm btn-outline-light" onclick="loadCarts()">
+                <i class="fas fa-sync-alt"></i> Refrescar
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-striped table-hover mb-0">
+                  <thead class="table-dark">
+                    <tr>
+                      <th><i class="fas fa-id-card"></i> ID del Carrito</th>
+                      <th><i class="fas fa-cubes"></i> Cantidad de Productos</th>
+                      <th class="text-end">
+                        <i class="fas fa-cogs"></i> Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="cartsTableBody"></tbody>
                 </table>
               </div>
             </div>
@@ -404,6 +439,93 @@
               data-bs-dismiss="modal"
             >
               Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver carrito -->
+    <div
+      class="modal fade"
+      id="viewCartModal"
+      tabindex="-1"
+      aria-labelledby="viewCartModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title" id="viewCartModalLabel">
+              <i class="fas fa-shopping-cart"></i> Detalles del Carrito
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="viewCartModalBody">
+            <!-- Contenido se llenará dinámicamente -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para agregar producto a carrito -->
+    <div
+      class="modal fade"
+      id="addProductModal"
+      tabindex="-1"
+      aria-labelledby="addProductModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addProductModalLabel">
+              <i class="fas fa-cart-plus"></i> Agregar Producto al Carrito
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="selectedCartId">
+            <div class="mb-3">
+              <label class="form-label">Seleccionar Producto</label>
+              <select id="productSelect" class="form-select">
+                <option value="">Cargando productos...</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="addProductToCart()"
+            >
+              <i class="fas fa-plus"></i> Agregar
             </button>
           </div>
         </div>

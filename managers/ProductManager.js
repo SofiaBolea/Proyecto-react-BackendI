@@ -85,7 +85,7 @@ class ProductManager {
         try{
             const product = await this.getById(pid);
             const products = await this.getAll();
-            const index = products.find((p)=> p.id ===pid);
+            const index = products.findIndex(p => p.id === pid);
             products.splice(index,1);
             await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
             return product;
@@ -96,4 +96,4 @@ class ProductManager {
     }
 }
 
-export const productManager = new ProductManager('./products.json');
+export const productManager = new ProductManager('./data/products.json');

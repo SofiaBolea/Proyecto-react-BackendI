@@ -290,5 +290,180 @@ async function searchProductById() {
 }
 
 
+// Función para crear carrito
+document.getElementById('createCartBtn').addEventListener('click', async () => {
+    showLoading(true);
+    try {
+        const response = await fetch('/api/carts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+
+        const result = await response.json();
+
+        if (response.status === 201) {
+            showMessageModal("¡Carrito creado con éxito! ID: " + result.id, "success");
+            loadCarts(); // Refrescar lista de carritos
+        } else {
+            showMessageModal("Error: " + result.error, "error");
+        }
+
+    } catch (error) {
+        console.error("Error de red:", error);
+        showMessageModal("Error de conexión con el servidor", "error");
+    } finally {
+        showLoading(false);
+    }
+});
+
+// Función para cargar carritos
+async function loadCarts() {
+    showLoading(true);
+    try {
+        const response = await fetch('/api/carts');
+        const carts = await response.json();
+
+        // Limpiar tabla
+        const cartsTableBody = document.getElementById('cartsTableBody');
+        cartsTableBody.innerHTML = '';
+
+        // Dibujar filas
+        carts.forEach(cart => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><small class="text-muted">${cart.id}</small></td>
+                <td>${cart.products.length} productos</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-info me-1"
+                        onclick="viewCart('${cart.id}')"
+                        data-bs-toggle="tooltip"
+                        title="Ver carrito">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success"
+                        onclick="openAddProductModal('${cart.id}')"
+                        data-bs-toggle="tooltip"
+                        title="Agregar producto">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </td>
+            `;
+            cartsTableBody.appendChild(row);
+        });
+
+        // Inicializar tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+    } catch (error) {
+        console.error("Error cargando carritos:", error);
+        showMessageModal("Error cargando carritos", "error");
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Función para ver carrito
+async function viewCart(cartId) {
+    showLoading(true);
+    try {
+        const response = await fetch(`/api/cart/${cartId}`);
+        const products = await response.json();
+
+        const modalBody = document.getElementById('viewCartModalBody');
+        if (products.length === 0) {
+            modalBody.innerHTML = '<p>El carrito está vacío.</p>';
+        } else {
+            let html = '<ul class="list-group">';
+            for (const item of products) {
+                // Obtener detalles del producto
+                const productResponse = await fetch(`/api/products/${item.product}`);
+                const product = await productResponse.json();
+                html += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${product.title} - Cantidad: ${item.quantity}
+                        <span class="badge bg-primary rounded-pill">$${product.price * item.quantity}</span>
+                    </li>
+                `;
+            }
+            html += '</ul>';
+            modalBody.innerHTML = html;
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('viewCartModal'));
+        modal.show();
+    } catch (error) {
+        console.error("Error:", error);
+        showMessageModal("Error cargando carrito", "error");
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Función para abrir modal de agregar producto
+async function openAddProductModal(cartId) {
+    document.getElementById('selectedCartId').value = cartId;
+    const productSelect = document.getElementById('productSelect');
+
+    // Cargar productos
+    try {
+        const response = await fetch('/api/products');
+        const products = await response.json();
+
+        productSelect.innerHTML = '<option value="">Seleccionar producto...</option>';
+        products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.id;
+            option.textContent = `${product.title} - $${product.price}`;
+            productSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+        productSelect.innerHTML = '<option value="">Error cargando productos</option>';
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+    modal.show();
+}
+
+// Función para agregar producto al carrito
+async function addProductToCart() {
+    const cartId = document.getElementById('selectedCartId').value;
+    const productId = document.getElementById('productSelect').value;
+
+    if (!productId) {
+        showMessageModal("Por favor, selecciona un producto", "warning");
+        return;
+    }
+
+    showLoading(true);
+    try {
+        const response = await fetch(`/api/cart/${cartId}/product/${productId}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            showMessageModal("Producto agregado al carrito", "success");
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+            modal.hide();
+            loadCarts(); // Recargar tabla
+        } else {
+            const result = await response.json();
+            showMessageModal("Error al agregar producto: " + (result.error || "Error desconocido"), "error");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        showMessageModal("Error de conexión", "error");
+    } finally {
+        showLoading(false);
+    }
+}
+
 // 4. Cargar la lista apenas arranca la página
 loadProducts();
+loadCarts();

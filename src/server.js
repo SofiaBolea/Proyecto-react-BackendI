@@ -110,7 +110,7 @@ app.post('/api/carts', async (req, res) => {
     }
 });
 
-/* LISTAR TODOS LOS CARRITOS */
+/* LISTAR TODOS LOS CARRITOS --- esto se agregó para poder mostrarlos en la tabla*/
 
 app.get('/api/carts', async (req, res) => {
     try {

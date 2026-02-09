@@ -1,3 +1,4 @@
+{{!-- Vista de listado de carritos con botón para crear nuevos registros. --}}
 <header class="text-center mb-4">
     <h1 class="display-5 text-primary">
         <i class="fas fa-shopping-cart"></i> Gestión de Carritos
@@ -38,7 +39,7 @@
                                         <i class="fas fa-eye"></i> Ver
                                     </a>
                                     <form action="/carts/{{this.id}}/delete" method="POST" style="display:inline"
-                                          onsubmit="return confirm('¿Seguro que deseas eliminar este carrito?')">
+                                          onsubmit="return confirmDeleteCart(event, this)">
                                         <button type="submit" class="btn btn-sm btn-danger">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </button>

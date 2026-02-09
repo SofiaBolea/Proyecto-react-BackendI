@@ -1,85 +1,120 @@
-# Entrega N° 1 - Servidor de Productos y Carritos
+# Proyecto React Backend I
 
-Este proyecto implementa un servidor backend basado en Node.js y Express para gestionar productos y carritos de compra, cumpliendo con los requisitos de la Entrega N° 1. El enfoque principal es el desarrollo del backend, por lo que el frontend incluido es básico y funcional, pero no representa las mejores prácticas de desarrollo frontend.
+Servidor completo de gestión de productos y carritos construido con **Node.js**, **Express**, **Handlebars** y **Socket.io**. El objetivo del proyecto es practicar la arquitectura de servidores REST + vistas renderizadas en el backend, incorporando también una vista en tiempo real y validaciones amigables con SweetAlert2.
 
-## Descripción
-
-El servidor proporciona una API RESTful para operaciones CRUD en productos y gestión de carritos. Incluye persistencia básica en archivos JSON y una interfaz web simple para demostración.
-
-## Funcionalidades
+## ✨ Características principales
 
 ### Backend
-- Gestión completa de productos (crear, leer, actualizar, eliminar)
-- Gestión de carritos (crear, listar, agregar productos)
-- Validación básica de datos
-- Persistencia en archivos JSON
+- CRUD de productos y carritos con persistencia en archivos JSON (sin base de datos externa).
+- Endpoints REST para integraciones (`/api/products`, `/api/carts`).
+- Rutas orientadas a vistas (`/`, `/products/:pid`, `/carts`, `/carts/:cid`).
+- Vista especial `/realtimeproducts` que emite actualizaciones instantáneas vía WebSocket.
 
-### Frontend
-- Interfaz web para gestionar productos y carritos
-- Creación, edición y eliminación de productos
-- Creación de carritos
-- Visualización de todos los carritos
-- Agregado de productos a carritos
-- Búsqueda de productos y carritos por ID
+### Frontend (server-side rendered)
+- Formularios clásicos para crear, editar y eliminar productos/carritos.
+- Confirmaciones y mensajes de error con **SweetAlert2**.
+- Campo opcional de thumbnails (URLs separadas por coma) en los formularios de producto.
+- Búsqueda rápida por ID desde la vista principal.
+- Interfaz responsiva basada en **Bootstrap 5** y **Font Awesome**.
 
-## Tecnologías
+### Tiempo real
+- Socket.io transmite el listado de productos a todos los clientes conectados cada vez que se crea o elimina un producto en la vista `/realtimeproducts`.
+- El cliente bloquea la UI hasta que el usuario ingresa un "nombre" (registro simple) mediante SweetAlert.
 
-- **Node.js**: Entorno de ejecución
-- **Express.js**: Framework web
-- **UUID**: Generación de IDs únicos
-- **Bootstrap**: Framework CSS para la interfaz
-- **Font Awesome**: Iconos
-- **File System**: Persistencia básica en JSON
+## 🏗 Estructura relevante
 
-## Instalación y Ejecución
+```
+├── data/                  # Archivos JSON persistentes
+├── managers/              # ProductManager y CartManager
+├── public/                # JS y CSS compartidos por las vistas
+│   ├── index.js           # Búsqueda, confirmaciones y lógica realtime
+│   └── styles.css         # Tema general
+└── src/
+    ├── server.js          # Configuración Express + Socket.io
+    ├── routes/
+    │   ├── products.router.js   # API REST Productos
+    │   ├── carts.router.js      # API REST Carritos
+    │   ├── views.routes.js      # Vistas Handlebars tradicionales
+    │   └── realtime.routes.js   # Vista + API en tiempo real
+    └── views/
+        ├── layouts/main.handlebars
+        ├── home.handlebars
+        ├── product.handlebars
+        ├── carts.handlebars
+        ├── cart.handlebars
+        └── realTimeProducts.handlebars
+```
 
-1. Clonar el repositorio
+## 🚀 Puesta en marcha
+
+1. Clonar el repositorio.
 2. Instalar dependencias:
    ```bash
    npm install
    ```
-3. Ejecutar el servidor:
+3. Iniciar el servidor:
    ```bash
-   node src/server.js
+   npm run dev   # o node src/server.js
    ```
-4. Acceder a la aplicación en `http://localhost:8080`
+4. Abrir [http://localhost:8080](http://localhost:8080).
+   - `/` → listado + formulario de productos.
+   - `/realtimeproducts` → vista en tiempo real.
+   - `/carts` → gestión de carritos.
 
-## API Endpoints
+## 📡 Endpoints REST
 
 ### Productos
-- `GET /api/products` - Lista todos los productos
-- `GET /api/products/:pid` - Obtiene un producto por ID
-- `POST /api/products` - Crea un nuevo producto
-- `PUT /api/products/:pid` - Actualiza un producto por ID
-- `DELETE /api/products/:pid` - Elimina un producto por ID
+- `GET /api/products` – Listar productos.
+- `GET /api/products/:pid` – Producto por ID.
+- `POST /api/products` – Crear (requiere title, description, code, price, stock, category; thumbnails opcional).
+- `PUT /api/products/:pid` – Actualizar campos enviados.
+- `DELETE /api/products/:pid` – Eliminar producto.
 
 ### Carritos
-- `POST /api/carts` - Crea un nuevo carrito vacío
-- `GET /api/carts` - Lista todos los carritos
-- `GET /api/cart/:cid` - Lista los productos en un carrito específico
-- `POST /api/cart/:cid/product/:pid` - Agrega un producto al carrito (incrementa cantidad si ya existe)
+- `POST /api/carts` – Crear carrito vacío.
+- `GET /api/carts` – Listar todos.
+- `GET /api/carts/:cid` – Obtener contenido del carrito.
+- `POST /api/carts/:cid/product/:pid` – Agregar producto (incrementa cantidad si ya existe).
 
-## Interfaz Frontend
+## 🧩 Vistas disponibles
 
-La aplicación incluye una interfaz web básica accesible en la raíz del servidor. Permite:
-- Gestionar productos (CRUD)
-- Crear y visualizar carritos
-- Agregar productos a carritos existentes
-- Buscar productos y carritos por ID
+| Ruta | Descripción |
+| --- | --- |
+| `/` | Formulario para crear productos y tabla con acciones ver/eliminar. |
+| `/products/:pid` | Detalle completo del producto + formulario de actualización. |
+| `/realtimeproducts` | Formulario + tabla que se sincronizan vía WebSocket. |
+| `/carts` | Listado de carritos con botones para ver/eliminar. |
+| `/carts/:cid` | Detalle del carrito, productos enriquecidos y formulario para agregar ítems. |
 
-## Notas sobre Implementación
+## 📘 Recursos adicionales
 
-Este proyecto se centra en el backend, por lo que el frontend es una demostración simple. Algunas malas prácticas identificadas:
+- `public/index.js` contiene ejemplos de uso de SweetAlert2, fetch y Socket.io que pueden reutilizarse en otras vistas.
 
-### Arquitectura Frontend
-- **Actual**: Código JavaScript inline en HTML, funciones globales
-- **En producción**: Separar en componentes modulares, usar frameworks como React/Vue, y herramientas de build como Webpack.
+## ❓ Pregunta frecuente: ¿Cómo emitir eventos de Socket.io dentro de un POST HTTP?
 
-### Manejo de Errores
-- **Actual**: Manejo básico de errores
-- **En producción**: Logging centralizado, códigos de error consistentes, y manejo de excepciones robusto.
+1. En `src/server.js` creamos una única instancia de Socket.io y la guardamos en Express:
+    ```js
+    const socketServer = new Server(httpServer);
+    app.set('io', socketServer);
+    ```
+2. Dentro de cualquier handler HTTP (por ejemplo el `POST /api/realtime/products` de `realtime.routes.js`) recuperamos esa instancia con `req.app.get('io')`:
+    ```js
+    router.post('/api/realtime/products', async (req, res) => {
+       const newProduct = await productManager.addProduct(req.body);
+       const products = await productManager.getAll();
+       const io = req.app.get('io');
+       if (io) {
+          io.emit('updateProducts', products);
+       }
+       res.status(201).json(newProduct);
+    });
+    ```
+3. Gracias a ese patrón, cualquier petición HTTP puede “avisar” a los clientes WebSocket emitiendo un evento justo después de completar la operación.
 
-### Seguridad
-- **Actual**: Sin autenticación ni autorización
+## ✅ Futuras mejoras 
+- Reemplazar JSON por una base de datos real.
+- Añadir autenticación/autorización.
+- Migrar el frontend a un framework.
 
-Estas decisiones se tomaron para mantener el foco en los conceptos del backend mientras se proporciona una interfaz funcional para testing.
+---
+Proyecto desarrollado como práctica de la asignatura *Backend I*. 

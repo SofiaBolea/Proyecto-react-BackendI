@@ -1,3 +1,5 @@
+// Endpoints REST para manejar carritos vía JSON. Se apoyan en los managers
+// para persistir los cambios y exponen operaciones CRUD básicas.
 import { Router } from 'express';
 import { cartManager } from "../../managers/CartManager.js";
 import { productManager } from "../../managers/ProductManager.js";

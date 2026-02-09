@@ -1,3 +1,4 @@
+{{!-- Vista para un carrito puntual: muestra productos y permite agregar más items. --}}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <a href="/carts" class="btn btn-outline-secondary mb-3">
@@ -88,7 +89,7 @@
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const pid = select.value;
-        if (!pid) return alert('Seleccioná un producto');
+        if (!pid) return Swal.fire({ icon: 'warning', title: 'Atención', text: 'Seleccioná un producto antes de agregar.' });
         form.action = `/carts/${cartId}/product/${pid}`;
         form.submit();
     });

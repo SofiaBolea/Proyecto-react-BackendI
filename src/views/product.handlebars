@@ -1,3 +1,4 @@
+{{!-- Vista detalle de un producto: muestra datos y formularios para eliminar/editar. --}}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <a href="/" class="btn btn-outline-secondary mb-3">
@@ -45,7 +46,7 @@
             </div>
             <div class="card-footer text-end">
                 <form action="/products/{{product.id}}/delete" method="POST" style="display:inline"
-                      onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
+                      onsubmit="return confirmDelete(event, this)">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Eliminar
                     </button>

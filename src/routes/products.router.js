@@ -1,3 +1,5 @@
+// Endpoints REST dedicados a productos (JSON). Cada handler delega en
+// ProductManager para operar sobre el archivo data/products.json.
 import { Router } from 'express';
 import { productManager } from "../../managers/ProductManager.js";
 

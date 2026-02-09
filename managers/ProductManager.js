@@ -48,6 +48,7 @@ class ProductManager {
             const newProduct = {
                 id: uuidv4(),
                 ...productData,
+                createdBy: productData.createdBy?.trim() || 'Formulario clásico',
                 price: Number(productData.price), // Aseguramos que sea número
                 status: true, 
                 stock: Number(productData.stock), // Aseguramos que sea número

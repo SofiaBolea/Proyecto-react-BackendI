@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Vista estática para visualizar un carrito desde localStorage y la API REST. -->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -15,8 +16,10 @@
     </div>
 
     <script>
+        // API base utilizada por esta página de demostración.
         const API_BASE = '/api';
 
+        // Recupera el carrito almacenado en localStorage y construye la lista.
         async function loadCart() {
             const cartId = localStorage.getItem('cartId');
             if (!cartId) {

@@ -1,3 +1,5 @@
+// Vista y API para la pantalla en tiempo real. Combina render Handlebars
+// con emisiones Socket.io para sincronizar el listado de productos.
 import { Router } from 'express';
 import { productManager } from "../../managers/ProductManager.js";
 

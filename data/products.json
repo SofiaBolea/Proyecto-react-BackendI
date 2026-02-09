@@ -4,9 +4,9 @@
     "title": "Webcam Logitech C920",
     "description": "Full HD 1080p con micrófono estéreo",
     "code": "CAM-013",
-    "price": 15000,
+    "price": "15000",
     "status": true,
-    "stock": 22,
+    "stock": "22",
     "category": "Streaming",
     "thumbnails": [
       "https://images.example.com/c920.jpg"
@@ -115,14 +115,15 @@
     "thumbnails": []
   },
   {
-    "id": "5af6410e-c40a-4369-877f-6cb289764e6f",
+    "id": "c0882152-7f86-4357-8abe-39be03ff1151",
     "title": "1",
     "description": "1",
     "code": "1",
     "price": 1,
     "stock": 1,
     "category": "1",
-    "status": true,
-    "thumbnails": []
+    "thumbnails": "1",
+    "createdBy": "sofia",
+    "status": true
   }
 ]

@@ -1,3 +1,4 @@
+{{!-- Vista de realtime: formulario + tabla que se sincronizan con Socket.io. --}}
 <header class="text-center mb-4">
     <h1 class="display-5 text-primary">
         <i class="fas fa-bolt"></i> Productos en Tiempo Real
@@ -26,6 +27,7 @@
                         </div>
                     </div>
                     <input type="text" name="category" class="form-control mb-2" placeholder="Categoría" required />
+                    <input type="text" name="thumbnails" class="form-control mb-2" placeholder="URLs de imágenes (separadas por coma, opcional)" />
                     <button type="submit" class="btn btn-success w-100">
                         <i class="fas fa-save"></i> Agregar Producto
                     </button>
@@ -51,6 +53,7 @@
                                 <th><i class="fas fa-dollar-sign"></i> Precio</th>
                                 <th><i class="fas fa-cubes"></i> Stock</th>
                                 <th><i class="fas fa-folder"></i> Categoría</th>
+                                <th><i class="fas fa-user"></i> Creado por</th>
                                 <th class="text-end"><i class="fas fa-cogs"></i> Acciones</th>
                             </tr>
                         </thead>
@@ -63,6 +66,7 @@
                                 <td>${{this.price}}</td>
                                 <td>{{this.stock}}</td>
                                 <td>{{this.category}}</td>
+                                <td>{{#if this.createdBy}}{{this.createdBy}}{{else}}Sin registrar{{/if}}</td>
                                 <td class="text-end">
                                     <button class="btn btn-sm btn-danger" onclick="deleteProduct('{{this.id}}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
@@ -88,81 +92,5 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
 
-    const tbody = document.getElementById('productsTableBody');
-    const countBadge = document.getElementById('productsCount');
-    const form = document.getElementById('createProductForm');
-
-    function renderProducts(products) {
-        if (!products || products.length === 0) {
-            tbody.innerHTML = `
-                <tr id="emptyRow">
-                    <td colspan="6" class="text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                        No hay productos cargados aún.
-                    </td>
-                </tr>`;
-        } else {
-            tbody.innerHTML = products.map(p => `
-                <tr id="product-${p.id}">
-                    <td>${p.title}</td>
-                    <td>${p.code}</td>
-                    <td>$${p.price}</td>
-                    <td>${p.stock}</td>
-                    <td>${p.category}</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        if (countBadge) {
-            countBadge.textContent = `${products ? products.length : 0} productos`;
-        }
-    }
-
-    socket.on('updateProducts', (products) => {
-        renderProducts(products);
-    });
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(form));
-        data.price = Number(data.price);
-        data.stock = Number(data.stock);
-
-        try {
-            const res = await fetch('/api/realtime/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                form.reset();
-            } else {
-                const body = await res.json().catch(() => ({}));
-                alert(body.error || 'Error al crear producto');
-            }
-        } catch (err) {
-            alert('Error de conexión');
-        }
-    });
-
-    async function deleteProduct(id) {
-        if (!confirm('¿Seguro que deseas eliminar este producto?')) return;
-        try {
-            const res = await fetch(`/api/realtime/products/${id}`, { method: 'DELETE' });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({}));
-                alert(body.error || 'Error al eliminar producto');
-            }
-        } catch (err) {
-            alert('Error de conexión');
-        }
-    }
-</script>
 

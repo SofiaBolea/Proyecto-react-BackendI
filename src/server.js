@@ -1,3 +1,5 @@
+// Punto de entrada del servidor Express + Socket.io: configura middlewares,
+// motor de vistas, rutas API y la instancia WebSocket compartida.
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -33,7 +35,7 @@ app.use(realtimeRouter);
 
 
 /* Archivos estáticos */
-app.use(express.static('public'));
+app.use(express.static('public')); /* esto hace que los archivos en la carpeta public sean accesibles públicamente */
 
 socketServer.on('connection', (socket) => {
 	console.log('Cliente conectado a WebSocket:', socket.id);

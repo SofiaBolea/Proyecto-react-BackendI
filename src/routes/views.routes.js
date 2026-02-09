@@ -1,3 +1,5 @@
+// Rutas server-side render (Handlebars). Atienden formularios clásicos y
+// renderizan vistas para productos y carritos usando los managers.
 import { Router } from 'express';
 import { productManager } from "../../managers/ProductManager.js";
 import { cartManager } from "../../managers/CartManager.js";

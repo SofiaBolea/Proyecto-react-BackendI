@@ -5,82 +5,11 @@ import { productManager } from "../../managers/ProductManager.js";
 const router = Router();
 
 /* ============================================= */
-/* --- VISTAS (Handlebars) ---                   */
-/* ============================================= */
-
-/* VISTA: Lista de carritos */
-router.get('/carts', async (req, res) => {
-    try {
-        const carts = await cartManager.getAll();
-        res.render('carts', { carts });
-    } catch (error) {
-        res.status(500).render('error', { message: error.message });
-    }
-});
-
-/* ACCIÓN: Crear carrito y redirigir */
-router.post('/carts', async (req, res) => {
-    try {
-        await cartManager.create();
-        res.redirect('/carts');
-    } catch (error) {
-        res.redirect('/carts');
-    }
-});
-
-/* VISTA: Detalle de un carrito */
-router.get('/carts/:cid', async (req, res) => {
-    try {
-        const cart = await cartManager.getById(req.params.cid);
-        // Enriquecer con datos del producto
-        const enrichedProducts = [];
-        for (const item of cart.products) {
-            try {
-                const product = await productManager.getById(item.product);
-                enrichedProducts.push({
-                    ...item,
-                    title: product.title,
-                    price: product.price,
-                    subtotal: product.price * item.quantity
-                });
-            } catch {
-                enrichedProducts.push({ ...item, title: 'Producto eliminado', price: 0, subtotal: 0 });
-            }
-        }
-        const total = enrichedProducts.reduce((sum, p) => sum + p.subtotal, 0);
-        res.render('cart', { cart, products: enrichedProducts, total });
-    } catch (error) {
-        res.status(404).render('error', { message: 'Carrito no encontrado' });
-    }
-});
-
-/* ACCIÓN: Eliminar carrito */
-router.post('/carts/:cid/delete', async (req, res) => {
-    try {
-        await cartManager.delete(req.params.cid);
-        res.redirect('/carts');
-    } catch (error) {
-        res.redirect('/carts');
-    }
-});
-
-/* ACCIÓN: Agregar producto a carrito */
-router.post('/carts/:cid/product/:pid', async (req, res) => {
-    try {
-        await productManager.getById(req.params.pid);
-        await cartManager.addProduct(req.params.cid, req.params.pid);
-        res.redirect(`/carts/${req.params.cid}`);
-    } catch (error) {
-        res.redirect('/carts');
-    }
-});
-
-/* ============================================= */
 /* --- API JSON ---                              */
 /* ============================================= */
 
 /* CREAR CARRITO */
-router.post('/api/carts', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const cart = await cartManager.create(req.body);
         res.status(201).json(cart);
@@ -91,7 +20,7 @@ router.post('/api/carts', async (req, res) => {
 });
 
 /* LISTAR TODOS LOS CARRITOS */
-router.get('/api/carts', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const carts = await cartManager.getAll();
         res.json(carts);
@@ -101,7 +30,7 @@ router.get('/api/carts', async (req, res) => {
 });
 
 /* LISTAR PRODUCTOS DE UN CARRITO */
-router.get('/api/cart/:cid', async (req, res) => {
+router.get('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
         const cart = await cartManager.getById(cid);
@@ -117,7 +46,7 @@ router.get('/api/cart/:cid', async (req, res) => {
 });
 
 /* ELIMINAR CARRITO */
-router.delete('/api/carts/:cid', async (req, res) => {
+router.delete('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
         const cart = await cartManager.delete(cid);
@@ -128,7 +57,7 @@ router.delete('/api/carts/:cid', async (req, res) => {
 });
 
 /* AGREGAR PRODUCTO A CARRITO */
-router.post('/api/cart/:cid/product/:pid', async (req, res) => {
+router.post('/:cid/product/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
         await productManager.getById(pid);

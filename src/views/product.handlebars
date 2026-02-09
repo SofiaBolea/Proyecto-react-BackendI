@@ -4,6 +4,13 @@
             <i class="fas fa-arrow-left"></i> Volver a Productos
         </a>
 
+        {{#if errorMessage}}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> {{errorMessage}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {{/if}}
+
         <div class="card shadow-sm">
             <div class="card-header bg-info text-white">
                 <h4 class="mb-0"><i class="fas fa-eye"></i> {{product.title}}</h4>
@@ -42,6 +49,47 @@
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Eliminar
                     </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-edit"></i> Modificar producto</h5>
+            </div>
+            <div class="card-body">
+                <form action="/products/{{product.id}}/update" method="POST">
+                    <div class="mb-2">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="title" class="form-control" value="{{product.title}}" required />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="description" class="form-control" rows="2" required>{{product.description}}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Código</label>
+                        <input type="text" name="code" class="form-control" value="{{product.code}}" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Precio</label>
+                            <input type="number" name="price" class="form-control" step="0.01" value="{{product.price}}" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label">Stock</label>
+                            <input type="number" name="stock" class="form-control" value="{{product.stock}}" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoría</label>
+                        <input type="text" name="category" class="form-control" value="{{product.category}}" required />
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save"></i> Guardar cambios
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

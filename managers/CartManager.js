@@ -69,6 +69,21 @@ class CartManager {
       throw error;
     }
   }
+
+  async delete(cid) {
+    try {
+      const carts = await this.getAll();
+      const index = carts.findIndex((c) => c.id === cid);
+      if (index === -1) {
+        throw new Error("Cart not found");
+      }
+      const [deleted] = carts.splice(index, 1);
+      await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2));
+      return deleted;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const cartManager = new CartManager("./data/carts.json");

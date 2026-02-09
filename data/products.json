@@ -1,19 +1,5 @@
 [
   {
-    "id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
-    "title": "Auriculares HyperX Cloud II",
-    "description": "Auriculares gaming con sonido envolvente 7.1",
-    "code": "HEAD-001",
-    "price": 14500,
-    "status": true,
-    "stock": 25,
-    "category": "Periféricos",
-    "thumbnails": [
-      "https://images.example.com/hyperx.jpg",
-      "https://images.example.com/hyperx.jpg"
-    ]
-  },
-  {
     "id": "b2c3d4e5-f6g7-8h9i-0j1k-l2m3n4o5p6q7",
     "title": "Teclado Mecánico Logitech G Pro",
     "description": "Teclado TKL con switches GX Blue Clicky",
@@ -115,19 +101,6 @@
     "category": "Hardware",
     "thumbnails": [
       "https://images.example.com/corsair-psu.jpg"
-    ]
-  },
-  {
-    "id": "j0k1l2m3-n4o5-6p7q-8r9s-t0u1v2w3x4y5",
-    "title": "Gabinete NZXT H510",
-    "description": "Mid Tower con vidrio templado, color blanco",
-    "code": "CASE-010",
-    "price": 21000,
-    "status": true,
-    "stock": 8,
-    "category": "Gabinetes",
-    "thumbnails": [
-      "https://images.example.com/nzxt.jpg"
     ]
   },
   {

@@ -1,0 +1,49 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <a href="/" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Volver a Productos
+        </a>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-eye"></i> {{product.title}}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> <small class="text-muted">{{product.id}}</small></p>
+                        <p><strong>Título:</strong> {{product.title}}</p>
+                        <p><strong>Descripción:</strong> {{product.description}}</p>
+                        <p><strong>Código:</strong> {{product.code}}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Precio:</strong> <span class="fs-4 text-success">${{product.price}}</span></p>
+                        <p><strong>Stock:</strong>
+                            {{#if product.stock}}
+                                <span class="badge bg-success">{{product.stock}} unidades</span>
+                            {{else}}
+                                <span class="badge bg-danger">Sin stock</span>
+                            {{/if}}
+                        </p>
+                        <p><strong>Categoría:</strong> <span class="badge bg-primary">{{product.category}}</span></p>
+                        <p><strong>Estado:</strong>
+                            {{#if product.status}}
+                                <span class="badge bg-success">Activo</span>
+                            {{else}}
+                                <span class="badge bg-secondary">Inactivo</span>
+                            {{/if}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <form action="/products/{{product.id}}/delete" method="POST" style="display:inline"
+                      onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

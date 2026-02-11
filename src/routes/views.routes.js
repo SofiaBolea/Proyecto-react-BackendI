@@ -125,18 +125,6 @@ router.post('/products/:pid/delete', async (req, res) => {
     }
 });
 
-/* ============================================ */
-/* --- VISTA TIEMPO REAL (WebSockets)          */
-/* ============================================ */
-router.get('/realtimeproducts', async (req, res) => {
-    try {
-        const products = await productManager.getAll();
-        res.render('realTimeProducts', { products });
-    } catch (error) {
-        res.status(500).render('error', { message: error.message });
-    }
-});
-
 /* MODIFICAR producto (desde formulario Handlebars) */
 router.post('/products/:pid/update', async (req, res) => {
     const { pid } = req.params;
@@ -152,6 +140,20 @@ router.post('/products/:pid/update', async (req, res) => {
         }
     }
 });
+
+
+/* ============================================ */
+/* --- VISTA TIEMPO REAL (WebSockets)          */
+/* ============================================ */
+router.get('/realtimeproducts', async (req, res) => {
+    try {
+        const products = await productManager.getAll();
+        res.render('realTimeProducts', { products });
+    } catch (error) {
+        res.status(500).render('error', { message: error.message });
+    }
+});
+
 
 
 export default router;

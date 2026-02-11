@@ -1,5 +1,5 @@
+// Lógica de productos en tiempo real via Socket.io.
 const socket = io();
-
 let username = null;
 
 const contenidoTabla = document.getElementById("productsTableBody");

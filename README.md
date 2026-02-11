@@ -1,48 +1,53 @@
 # Proyecto React Backend I
 
-Servidor completo de gestión de productos y carritos construido con **Node.js**, **Express**, **Handlebars** y **Socket.io**. El objetivo del proyecto es practicar la arquitectura de servidores REST + vistas renderizadas en el backend, incorporando también una vista en tiempo real y validaciones amigables con SweetAlert2.
+Servidor de gestión de productos y carritos construido con **Node.js**, **Express**, **Handlebars** y **Socket.io**. El proyecto practica la arquitectura de servidores REST + vistas renderizadas en el backend, incorporando una vista en tiempo real con WebSockets.
 
 ## ✨ Características principales
 
 ### Backend
 - CRUD de productos y carritos con persistencia en archivos JSON (sin base de datos externa).
 - Endpoints REST para integraciones (`/api/products`, `/api/carts`).
-- Rutas orientadas a vistas (`/`, `/products/:pid`, `/carts`, `/carts/:cid`).
-- Vista especial `/realtimeproducts` que emite actualizaciones instantáneas vía WebSocket.
+- Rutas de vistas HTTP clásicas (`/`, `/products/:pid`, `/carts`, `/carts/:cid`) renderizadas con Handlebars.
+- Vista `/realtimeproducts` que trabaja exclusivamente con **WebSockets** (Socket.io) para actualizar la lista de productos en tiempo real al crear o eliminar.
 
 ### Frontend (server-side rendered)
-- Formularios clásicos para crear, editar y eliminar productos/carritos.
+- Formularios clásicos (HTTP POST) para crear, editar y eliminar productos/carritos en las vistas tradicionales.
 - Confirmaciones y mensajes de error con **SweetAlert2**.
-- Campo opcional de thumbnails (URLs separadas por coma) en los formularios de producto.
 - Búsqueda rápida por ID desde la vista principal.
 - Interfaz responsiva basada en **Bootstrap 5** y **Font Awesome**.
 
-### Tiempo real
-- Socket.io transmite el listado de productos a todos los clientes conectados cada vez que se crea o elimina un producto en la vista `/realtimeproducts`.
-- El cliente bloquea la UI hasta que el usuario ingresa un "nombre" (registro simple) mediante SweetAlert.
+### Tiempo real (WebSockets)
+- La vista `/realtimeproducts` se conecta por Socket.io al servidor.
+- Cada vez que un cliente crea o elimina un producto desde esa vista, **todos los clientes conectados** reciben la lista actualizada automáticamente.
+- Registro simple de usuario al ingresar (SweetAlert) con notificaciones Toastify cuando se conectan otros usuarios.
 
-## 🏗 Estructura relevante
+## 🏗 Estructura del proyecto
 
 ```
-├── data/                  # Archivos JSON persistentes
-├── managers/              # ProductManager y CartManager
-├── public/                # JS y CSS compartidos por las vistas
-│   ├── index.js           # Búsqueda, confirmaciones y lógica realtime
-│   └── styles.css         # Tema general
+├── data/                        # Archivos JSON de persistencia
+│   ├── products.json
+│   └── carts.json
+├── managers/                    # Lógica de negocio
+│   ├── ProductManager.js
+│   └── CartManager.js
+├── public/                      # JS del cliente (realtime)
+│   └── index.js                 # Lógica Socket.io + SweetAlert (solo corre en /realtimeproducts)
 └── src/
-    ├── server.js          # Configuración Express + Socket.io
+    ├── server.js                # Express + Socket.io + Handlebars
+    ├── public/                  # Assets estáticos (CSS)
+    │   └── styles.css
     ├── routes/
     │   ├── products.router.js   # API REST Productos
     │   ├── carts.router.js      # API REST Carritos
-    │   ├── views.routes.js      # Vistas Handlebars tradicionales
-    │   └── realtime.routes.js   # Vista + API en tiempo real
+    │   └── views.routes.js      # Todas las vistas (HTTP + /realtimeproducts)
     └── views/
-        ├── layouts/main.handlebars
-        ├── home.handlebars
-        ├── product.handlebars
-        ├── carts.handlebars
-        ├── cart.handlebars
-        └── realTimeProducts.handlebars
+        ├── layouts/main.handlebars  # Layout con navbar y scripts globales
+        ├── home.handlebars          # Lista de productos (HTTP)
+        ├── product.handlebars       # Detalle de producto (HTTP)
+        ├── carts.handlebars         # Lista de carritos (HTTP)
+        ├── cart.handlebars          # Detalle de carrito (HTTP)
+        ├── realTimeProducts.handlebars  # Productos en tiempo real (WebSocket)
+        └── error.handlebars         # Página de error
 ```
 
 ## 🚀 Puesta en marcha
@@ -54,67 +59,116 @@ Servidor completo de gestión de productos y carritos construido con **Node.js**
    ```
 3. Iniciar el servidor:
    ```bash
-   npm run dev   # o node src/server.js
+   npm run dev   # modo watch (reinicia con cambios)
+   npm start     # modo normal
    ```
 4. Abrir [http://localhost:8080](http://localhost:8080).
-   - `/` → listado + formulario de productos.
-   - `/realtimeproducts` → vista en tiempo real.
-   - `/carts` → gestión de carritos.
 
 ## 📡 Endpoints REST
 
-### Productos
-- `GET /api/products` – Listar productos.
-- `GET /api/products/:pid` – Producto por ID.
-- `POST /api/products` – Crear (requiere title, description, code, price, stock, category; thumbnails opcional).
-- `PUT /api/products/:pid` – Actualizar campos enviados.
-- `DELETE /api/products/:pid` – Eliminar producto.
+### Productos (`/api/products`)
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| `GET` | `/api/products` | Listar todos los productos |
+| `GET` | `/api/products/:pid` | Obtener producto por ID |
+| `POST` | `/api/products` | Crear producto (title, description, code, price, stock, category; thumbnails opcional) |
+| `PUT` | `/api/products/:pid` | Actualizar campos enviados |
+| `DELETE` | `/api/products/:pid` | Eliminar producto |
 
-### Carritos
-- `POST /api/carts` – Crear carrito vacío.
-- `GET /api/carts` – Listar todos.
-- `GET /api/carts/:cid` – Obtener contenido del carrito.
-- `POST /api/carts/:cid/product/:pid` – Agregar producto (incrementa cantidad si ya existe).
+### Carritos (`/api/carts`)
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| `POST` | `/api/carts` | Crear carrito vacío |
+| `GET` | `/api/carts` | Listar todos los carritos |
+| `GET` | `/api/carts/:cid` | Obtener contenido del carrito |
+| `POST` | `/api/carts/:cid/product/:pid` | Agregar producto al carrito |
 
-## 🧩 Vistas disponibles
+## 🧩 Vistas (Handlebars)
 
-| Ruta | Descripción |
-| --- | --- |
-| `/` | Formulario para crear productos y tabla con acciones ver/eliminar. |
-| `/products/:pid` | Detalle completo del producto + formulario de actualización. |
-| `/realtimeproducts` | Formulario + tabla que se sincronizan vía WebSocket. |
-| `/carts` | Listado de carritos con botones para ver/eliminar. |
-| `/carts/:cid` | Detalle del carrito, productos enriquecidos y formulario para agregar ítems. |
+| Ruta | Método | Descripción |
+| --- | --- | --- |
+| `/` | HTTP | Formulario para crear productos y tabla con acciones ver/eliminar |
+| `/products/:pid` | HTTP | Detalle del producto + formulario de actualización |
+| `/carts` | HTTP | Listado de carritos con botones para ver/eliminar |
+| `/carts/:cid` | HTTP | Detalle del carrito con productos enriquecidos |
+| `/realtimeproducts` | **WebSocket** | Formulario + tabla sincronizados en tiempo real vía Socket.io |
 
-## 📘 Recursos adicionales
+## 🔌 Arquitectura WebSocket
 
-- `public/index.js` contiene ejemplos de uso de SweetAlert2, fetch y Socket.io que pueden reutilizarse en otras vistas.
+1. En `server.js` se crea el servidor Socket.io sobre el servidor HTTP de Express.
+2. Al conectarse un cliente a `/realtimeproducts`, recibe la lista completa de productos.
+3. Cuando un cliente emite `newProduct` o `deleteProduct`, el servidor ejecuta la operación y emite `products` a **todos** los clientes conectados.
+4. Los errores de validación (código duplicado, campos faltantes) se envían solo al cliente que los originó mediante el evento `productError`.
 
-## ❓ Pregunta frecuente: ¿Cómo emitir eventos de Socket.io dentro de un POST HTTP?
+## ✅ Futuras mejoras
 
-1. En `src/server.js` creamos una única instancia de Socket.io y la guardamos en Express:
-    ```js
-    const socketServer = new Server(httpServer);
-    app.set('io', socketServer);
-    ```
-2. Dentro de cualquier handler HTTP (por ejemplo el `POST /api/realtime/products` de `realtime.routes.js`) recuperamos esa instancia con `req.app.get('io')`:
-    ```js
-    router.post('/api/realtime/products', async (req, res) => {
-       const newProduct = await productManager.addProduct(req.body);
-       const products = await productManager.getAll();
-       const io = req.app.get('io');
-       if (io) {
-          io.emit('updateProducts', products);
-       }
-       res.status(201).json(newProduct);
-    });
-    ```
-3. Gracias a ese patrón, cualquier petición HTTP puede “avisar” a los clientes WebSocket emitiendo un evento justo después de completar la operación.
+## ❓ ¿Cómo utilizar un emit de Socket.io dentro de un POST HTTP?
 
-## ✅ Futuras mejoras 
+En este proyecto, la vista `/realtimeproducts` maneja la creación y eliminación de productos **directamente por WebSocket** (el cliente emite eventos y el servidor los procesa dentro de `socketServer.on('connection', ...)`). Sin embargo, si quisiéramos que una ruta HTTP clásica (como un `POST`) también notifique a los clientes conectados por WebSocket, el enfoque sería el siguiente:
+
+### Paso 1 — Guardar la instancia de Socket.io en Express
+
+En `server.js`, después de crear el servidor de sockets, lo almacenamos en `app` para que esté disponible en cualquier router:
+
+```js
+// server.js
+const socketServer = new Server(httpServer);
+app.set('io', socketServer);  // ← clave: guardamos la instancia
+```
+
+### Paso 2 — Recuperar `io` dentro del handler POST
+
+Desde cualquier ruta HTTP accedemos a la instancia con `req.app.get('io')` y emitimos el evento que necesitemos:
+
+```js
+// Ejemplo: en views.routes.js, el POST que crea un producto vía formulario
+router.post('/products', async (req, res) => {
+    try {
+        await productManager.addProduct(req.body);
+
+        // Notificar a todos los clientes WebSocket conectados
+        const io = req.app.get('io');
+        if (io) {
+            const products = await productManager.getAll();
+            io.emit('products', products);
+        }
+
+        res.redirect('/');
+    } catch (error) {
+        const products = await productManager.getAll();
+        res.render('home', { products, errorMessage: error.message });
+    }
+});
+```
+
+### ¿Por qué funciona?
+
+- `app.set('io', socketServer)` almacena la referencia al servidor Socket.io dentro del objeto `app` de Express.
+- `req.app.get('io')` la recupera desde cualquier middleware o router, sin necesidad de importar variables globales.
+- Al llamar `io.emit('products', products)`, **todos** los clientes conectados (por ejemplo los que están en `/realtimeproducts`) reciben la lista actualizada, incluso si el producto fue creado desde un formulario HTTP clásico.
+
+### ¿Cómo lo resuelvo actualmente?
+
+En la implementación actual del proyecto, la vista `/realtimeproducts` **no usa HTTP para crear/eliminar productos**. En su lugar, el cliente envía eventos directamente por WebSocket y el servidor los procesa en `server.js`:
+
+```js
+// server.js — dentro de socketServer.on('connection', ...)
+socket.on('newProduct', async (data) => {
+    try {
+        await productManager.addProduct(data);
+        socketServer.emit('products', await productManager.getAll());
+    } catch (error) {
+        socket.emit('productError', error.message);
+    }
+});
+```
+
+Ambos enfoques son válidos. La diferencia es que con `req.app.get('io')` se puede **mezclar HTTP y WebSocket** en la misma operación, lo que es útil cuando se quiere que un formulario clásico también actualice a los clientes en tiempo real.
+
+## ✅ Futuras mejoras
 - Reemplazar JSON por una base de datos real.
 - Añadir autenticación/autorización.
 - Migrar el frontend a un framework.
 
 ---
-Proyecto desarrollado como práctica de la asignatura *Backend I*. 
+Proyecto desarrollado como práctica de la asignatura *Backend I*.

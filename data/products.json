@@ -113,17 +113,5 @@
     "category": "Hardware",
     "status": true,
     "thumbnails": []
-  },
-  {
-    "id": "c0882152-7f86-4357-8abe-39be03ff1151",
-    "title": "1",
-    "description": "1",
-    "code": "1",
-    "price": 1,
-    "stock": 1,
-    "category": "1",
-    "thumbnails": "1",
-    "createdBy": "sofia",
-    "status": true
   }
 ]

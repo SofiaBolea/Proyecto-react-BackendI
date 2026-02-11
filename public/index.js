@@ -1,176 +1,82 @@
-// Script compartido para todas las vistas: maneja búsquedas rápidas,
-// confirmaciones con SweetAlert y la lógica del panel en tiempo real.
-function searchProductById() {
-    const input = document.getElementById('searchIdInput');
-    const id = input.value.trim();
-    if (!id) return;
-    window.location.href = '/products/' + id;
-}
+const contenidoTabla = document.getElementById('productsTableBody');
+const btn = document.getElementById('addProductButton');
 
-// ===== Confirmaciones con SweetAlert =====
-function confirmDelete(e, formEl) {
-    e.preventDefault();
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción eliminará el producto permanentemente.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) formEl.submit();
-    });
-    return false;
-}
-
-function confirmDeleteCart(e, formEl) {
-    e.preventDefault();
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción eliminará el carrito permanentemente.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) formEl.submit();
-    });
-    return false;
-}
-
-// ===== Tiempo Real con WebSocket (solo en /realtimeproducts) =====
-const form = document.getElementById('createProductForm');
-if (form && typeof io !== 'undefined') {
+// Solo inicializar Socket.io si estamos en la vista de tiempo real
+if (!contenidoTabla || !btn) {
+    // No estamos en realTimeProducts, no hacer nada
+} else {
     const socket = io();
+    let username = null;
 
-    const tbody = document.getElementById('productsTableBody');
-    const countBadge = document.getElementById('productsCount');
-    const mainContent = document.querySelector('.row');
-
-    // Bloquear la página hasta que el usuario se registre
-    if (mainContent) mainContent.style.pointerEvents = 'none';
-    if (mainContent) mainContent.style.opacity = '0.3';
-
-    let currentUser = null;
-
-    async function askForUsername() {
-        const { value: name } = await Swal.fire({
-            title: '¡Bienvenido!',
-            text: 'Ingresá tu nombre para continuar:',
-            input: 'text',
-            inputPlaceholder: 'Tu nombre...',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            inputValidator: (value) => {
-                if (!value || !value.trim()) {
-                    return 'Debes ingresar un nombre para continuar';
-                }
-            }
-        });
-
-        currentUser = name.trim();
-        if (mainContent) mainContent.style.pointerEvents = 'auto';
-        if (mainContent) mainContent.style.opacity = '1';
-
-        Swal.fire({
-            icon: 'success',
-            title: `¡Hola ${currentUser}!`,
-            text: 'Ya podés gestionar productos en tiempo real.',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    }
-
-    askForUsername();
-
-    function renderProducts(products) {
-        if (!products || products.length === 0) {
-            tbody.innerHTML = `
-                <tr id="emptyRow">
-                    <td colspan="6" class="text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                        No hay productos cargados aún.
-                    </td>
-                </tr>`;
-        } else {
-            tbody.innerHTML = products.map(p => `
-                <tr id="product-${p.id}">
-                    <td>${p.title}</td>
-                    <td>${p.code}</td>
-                    <td>$${p.price}</td>
-                    <td>${p.stock}</td>
-                    <td>${p.category}</td>
-                    <td>${p.createdBy || 'Sin registrar'}</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        if (countBadge) {
-            countBadge.textContent = `${products ? products.length : 0} productos`;
-        }
-    }
-
-    socket.on('updateProducts', (products) => {
-        renderProducts(products);
-    });
-
-    form.addEventListener('submit', async (e) => {
+    btn.addEventListener("click", async (e) => {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(form));
-        data.price = Number(data.price);
-        data.stock = Number(data.stock);
-        if (currentUser) {
-            data.createdBy = currentUser;
-        }
+        const newProduct = {
+            title: document.querySelector('input[name="title"]').value,
+            description: document.querySelector('input[name="description"]').value,
+            code: document.querySelector('input[name="code"]').value,
+            price: document.querySelector('input[name="price"]').value,
+            stock: document.querySelector('input[name="stock"]').value,
+            category: document.querySelector('input[name="category"]').value,
+        };
 
-        try {
-            const res = await fetch('/api/realtime/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) {
-                form.reset();
-                Swal.fire({ icon: 'success', title: 'Producto creado', text: 'El producto se agregó correctamente.', timer: 2000, showConfirmButton: false });
-            } else {
-                const body = await res.json().catch(() => ({}));
-                Swal.fire({ icon: 'error', title: 'Error', text: body.error || 'Error al crear producto' });
-            }
-        } catch (err) {
-            Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar con el servidor.' });
+        socket.emit("newProduct", newProduct);
+        document.querySelector('input[name="title"]').value = "";
+        document.querySelector('input[name="description"]').value = "";
+        document.querySelector('input[name="code"]').value = "";
+        document.querySelector('input[name="price"]').value = "";
+        document.querySelector('input[name="stock"]').value = "";
+        document.querySelector('input[name="category"]').value = "";
+    });
+
+    contenidoTabla.addEventListener("click", (e) => {
+        if (e.target.classList.contains("delete-btn")) {
+            const pid = e.target.dataset.id;
+            socket.emit("deleteProduct", pid);
         }
     });
-}
 
-async function deleteProduct(id) {
-    const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción eliminará el producto permanentemente.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+    Swal.fire({
+        title: "¡Bienvenido!",
+        text: "Ingresa tu nombre de usuario:",
+        input: "text",
+        inputValidator: (value) => {
+            if (!value) return "Debes ingresar un nombre de usuario";
+        },
+    }).then((input) => {
+        username = input.value;
+        socket.emit("newUserFront", username);
     });
-    if (!result.isConfirmed) return;
-    try {
-        const res = await fetch(`/api/realtime/products/${id}`, { method: 'DELETE' });
-        if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            Swal.fire({ icon: 'error', title: 'Error', text: body.error || 'Error al eliminar producto' });
-        } else {
-            Swal.fire({ icon: 'success', title: 'Eliminado', text: 'El producto fue eliminado.', timer: 2000, showConfirmButton: false });
-        }
-    } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar con el servidor.' });
-    }
+
+    socket.on("newUser", (joinedUser) => {
+        Toastify({
+            text: `${joinedUser} se ha unido`,
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "left",
+            stopOnFocus: true,
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+        }).showToast();
+    });
+
+    socket.on("products", (products) => {
+        contenidoTabla.innerHTML = "";
+        const render = products
+            .map((prod) => {
+                return `<tr>
+                <td>${prod.title}</td>
+                <td>${prod.description}</td>
+                <td>${prod.code}</td>
+                <td>$${prod.price}</td>
+                <td>${prod.stock}</td>
+                <td>${prod.category}</td>
+                <td><button class="btn btn-danger delete-btn" data-id="${prod.id}">Eliminar</button></td>
+            </tr>`;
+            })
+            .join("");
+
+        contenidoTabla.innerHTML = render;
+    });
 }

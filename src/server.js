@@ -8,19 +8,16 @@ import apiProductsRouter from './routes/products.router.js';
 import apiCartsRouter from './routes/carts.router.js';
 import path from 'path';
 import viewsRouter from './routes/views.routes.js';
-import realtimeRouter from './routes/realtime.routes.js';
+import { productManager } from '../managers/ProductManager.js';
 
 const app = express();
 const httpServer = createServer(app);
 const socketServer = new Server(httpServer);
 
-// Hacemos disponible io dentro de las rutas vía req.app.get('io')
-app.set('io', socketServer);
 
 /* --- MIDDLEWARES --- */
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
-app.use('/', express.static(path.join(process.cwd(), "src", "public")));
 
 /* --- HANDLEBARS --- */
 app.engine('handlebars', engine());
@@ -31,14 +28,37 @@ app.set('views', path.join(process.cwd(), "src", "views"));
 app.use('/api/products', apiProductsRouter);
 app.use('/api/carts', apiCartsRouter);
 app.use(viewsRouter);
-app.use(realtimeRouter);
 
+/* --- ARCHIVOS ESTÁTICOS (después de las rutas para que no pisen las vistas) --- */
+app.use(express.static(path.join(process.cwd(), 'src', 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
-/* Archivos estáticos */
-app.use(express.static('public')); /* esto hace que los archivos en la carpeta public sean accesibles públicamente */
-
-socketServer.on('connection', (socket) => {
+socketServer.on('connection', async(socket) => {
 	console.log('Cliente conectado a WebSocket:', socket.id);
+
+    socket.on('newUserFront', (user) => {
+        socket.broadcast.emit('newUser', user);
+    }) /* socket.on sirve para escuchar eventos enviados por el cliente */
+
+	socketServer.emit('products', await productManager.getAll()) /* socket.emit sirve para enviar eventos al cliente */
+	
+	socket.on('newProduct', async (data) => {
+		try {
+			await productManager.addProduct(data);
+			socketServer.emit('products', await productManager.getAll())
+		} catch (error) {
+			socket.emit('productError', error.message);
+		}
+	})
+
+	socket.on('deleteProduct', async (pid) => {
+		try {
+			await productManager.delete(pid);
+			socketServer.emit('products', await productManager.getAll())
+		} catch (error) {
+			socket.emit('productError', error.message);
+		}
+	})
 });
 
 httpServer.listen(8080, () => {

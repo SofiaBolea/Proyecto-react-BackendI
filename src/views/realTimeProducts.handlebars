@@ -28,7 +28,7 @@
                     </div>
                     <input type="text" name="category" class="form-control mb-2" placeholder="Categoría" required />
                     <input type="text" name="thumbnails" class="form-control mb-2" placeholder="URLs de imágenes (separadas por coma, opcional)" />
-                    <button type="submit" class="btn btn-success w-100">
+                    <button id="addProductButton" class="btn btn-success w-100">
                         <i class="fas fa-save"></i> Agregar Producto
                     </button>
                 </form>
@@ -41,7 +41,6 @@
         <div class="card shadow-sm">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-list"></i> Listado de Productos</span>
-                <span class="badge bg-light text-dark" id="productsCount">{{products.length}} productos</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -49,48 +48,26 @@
                         <thead class="table-dark">
                             <tr>
                                 <th><i class="fas fa-tag"></i> Título</th>
+                                <th>Descripción</th>
                                 <th><i class="fas fa-barcode"></i> Código</th>
                                 <th><i class="fas fa-dollar-sign"></i> Precio</th>
                                 <th><i class="fas fa-cubes"></i> Stock</th>
                                 <th><i class="fas fa-folder"></i> Categoría</th>
-                                <th><i class="fas fa-user"></i> Creado por</th>
                                 <th class="text-end"><i class="fas fa-cogs"></i> Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
-                            {{!-- Se renderiza inicialmente desde el servidor --}}
-                            {{#each products}}
-                            <tr id="product-{{this.id}}">
-                                <td>{{this.title}}</td>
-                                <td>{{this.code}}</td>
-                                <td>${{this.price}}</td>
-                                <td>{{this.stock}}</td>
-                                <td>{{this.category}}</td>
-                                <td>{{#if this.createdBy}}{{this.createdBy}}{{else}}Sin registrar{{/if}}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-danger" onclick="deleteProduct('{{this.id}}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {{else}}
-                            <tr id="emptyRow">
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                    No hay productos cargados aún.
-                                </td>
-                            </tr>
-                            {{/each}}
+                            
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-        </div>
-    </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/index.js"></script>
 

@@ -8,7 +8,7 @@
         <div class="card shadow-sm mb-3">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Carrito</h5>
-                <small>{{cart.id}}</small>
+                <small>{{cart._id}}</small>
             </div>
             <div class="card-body p-0">
                 {{#if products.length}}
@@ -53,7 +53,7 @@
                 <i class="fas fa-cart-plus"></i> Agregar Producto a este Carrito
             </div>
             <div class="card-body">
-                <form action="/carts/{{cart.id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart.id}}">
+                <form action="/carts/{{cart._id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart._id}}">
                     <div class="input-group">
                         <select class="form-select" id="productSelect" required>
                             <option value="">Seleccionar producto...</option>

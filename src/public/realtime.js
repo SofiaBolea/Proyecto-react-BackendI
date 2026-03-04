@@ -69,7 +69,7 @@ socket.on("products", (products) => {
             <td>$${prod.price}</td>
             <td>${prod.stock}</td>
             <td>${prod.category}</td>
-            <td><button class="btn btn-danger delete-btn" data-id="${prod.id}">Eliminar</button></td>
+            <td><button class="btn btn-danger delete-btn" data-id="${prod._id}">Eliminar</button></td>
         </tr>`;
         })
         .join("");

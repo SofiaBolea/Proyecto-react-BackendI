@@ -9,7 +9,7 @@ fetch('/api/products')
     .then(products => {
         products.forEach(p => {
             const opt = document.createElement('option');
-            opt.value = p.id;
+            opt.value = p._id;
             opt.textContent = `${p.title} - $${p.price}`;
             select.appendChild(opt);
         });

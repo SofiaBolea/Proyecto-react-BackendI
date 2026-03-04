@@ -32,13 +32,13 @@
                         <tbody>
                             {{#each carts}}
                             <tr>
-                                <td><small class="text-muted">{{this.id}}</small></td>
+                                <td><small class="text-muted">{{this._id}}</small></td>
                                 <td>{{this.products.length}} productos</td>
                                 <td class="text-end">
-                                    <a href="/carts/{{this.id}}" class="btn btn-sm btn-info me-1">
+                                    <a href="/carts/{{this._id}}" class="btn btn-sm btn-info me-1">
                                         <i class="fas fa-eye"></i> Ver
                                     </a>
-                                    <form action="/carts/{{this.id}}/delete" method="POST" style="display:inline"
+                                    <form action="/carts/{{this._id}}/delete" method="POST" style="display:inline"
                                           onsubmit="return confirmDeleteCart(event, this)">
                                         <button type="submit" class="btn btn-sm btn-danger">
                                             <i class="fas fa-trash"></i> Eliminar

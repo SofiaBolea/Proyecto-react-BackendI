@@ -19,7 +19,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>ID:</strong> <small class="text-muted">{{product.id}}</small></p>
+                        <p><strong>ID:</strong> <small class="text-muted">{{product._id}}</small></p>
                         <p><strong>Título:</strong> {{product.title}}</p>
                         <p><strong>Descripción:</strong> {{product.description}}</p>
                         <p><strong>Código:</strong> {{product.code}}</p>
@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="card-footer text-end">
-                <form action="/products/{{product.id}}/delete" method="POST" style="display:inline"
+                <form action="/products/{{product._id}}/delete" method="POST" style="display:inline"
                       onsubmit="return confirmDelete(event, this)">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Eliminar
@@ -59,7 +59,7 @@
                 <h5 class="mb-0"><i class="fas fa-edit"></i> Modificar producto</h5>
             </div>
             <div class="card-body">
-                <form action="/products/{{product.id}}/update" method="POST">
+                <form action="/products/{{product._id}}/update" method="POST">
                     <div class="mb-2">
                         <label class="form-label">Título</label>
                         <input type="text" name="title" class="form-control" value="{{product.title}}" required />

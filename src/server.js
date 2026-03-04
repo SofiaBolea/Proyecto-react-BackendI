@@ -8,7 +8,9 @@ import apiProductsRouter from './routes/products.router.js';
 import apiCartsRouter from './routes/carts.router.js';
 import path from 'path';
 import viewsRouter from './routes/views.routes.js';
-import { productManager } from '../managers/ProductManager.js';
+import { productRepository } from './repositories/product-repository.js';
+import errorHandler from './middlewares/error-handler.js';
+import { initMongoDB } from './config/db-connection.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -33,6 +35,9 @@ app.use(viewsRouter);
 app.use(express.static(path.join(process.cwd(), 'src', 'public')));
 app.use(express.static(path.join(process.cwd(), 'public')));
 
+/* --- MANEJO DE ERRORES --- */
+app.use(errorHandler)
+
 socketServer.on('connection', async(socket) => {
 	console.log('Cliente conectado a WebSocket:', socket.id);
 
@@ -40,12 +45,12 @@ socketServer.on('connection', async(socket) => {
         socket.broadcast.emit('newUser', user);
     }) /* socket.on sirve para escuchar eventos enviados por el cliente */
 
-	socketServer.emit('products', await productManager.getAll()) /* socket.emit sirve para enviar eventos al cliente */
+	socketServer.emit('products', await productRepository.getAll()) /* socket.emit sirve para enviar eventos al cliente */
 	
 	socket.on('newProduct', async (data) => {
 		try {
-			await productManager.addProduct(data);
-			socketServer.emit('products', await productManager.getAll())
+			await productRepository.create(data);
+			socketServer.emit('products', await productRepository.getAll())
 		} catch (error) {
 			socket.emit('productError', error.message);
 		}
@@ -53,14 +58,17 @@ socketServer.on('connection', async(socket) => {
 
 	socket.on('deleteProduct', async (pid) => {
 		try {
-			await productManager.delete(pid);
-			socketServer.emit('products', await productManager.getAll())
+			await productRepository.delete(pid);
+			socketServer.emit('products', await productRepository.getAll())
 		} catch (error) {
 			socket.emit('productError', error.message);
 		}
 	})
 });
 
-httpServer.listen(8080, () => {
-	console.log('Servidor Express + Socket.io escuchando en http://localhost:8080');
-});
+initMongoDB()
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log(err));
+
+
+httpServer.listen(8080, () => console.log("Server running on port 8080"));

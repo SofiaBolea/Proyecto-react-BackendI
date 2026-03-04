@@ -1,8 +1,8 @@
-// Rutas server-side render (Handlebars). Atienden formularios clásicos y
-// renderizan vistas para productos y carritos usando los managers.
+// Rutas server-side render (Handlebars). Usan los repositories de MongoDB
+// para persistir/consultar datos y renderizan vistas para productos y carritos.
 import { Router } from 'express';
-import { productManager } from "../../managers/ProductManager.js";
-import { cartManager } from "../../managers/CartManager.js";
+import { productRepository } from "../repositories/product-repository.js";
+import { cartRepository } from "../repositories/cart-repository.js";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
 /* VISTA: Lista de carritos */
 router.get('/carts', async (req, res) => {
     try {
-        const carts = await cartManager.getAll();
+        const carts = (await cartRepository.getAll()).map(c => c.toObject());
         res.render('carts', { carts });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
@@ -23,7 +23,7 @@ router.get('/carts', async (req, res) => {
 /* ACCIÓN: Crear carrito y redirigir */
 router.post('/carts', async (req, res) => {
     try {
-        await cartManager.create();
+        await cartRepository.create();
         res.redirect('/carts');
     } catch (error) {
         res.redirect('/carts');
@@ -33,24 +33,24 @@ router.post('/carts', async (req, res) => {
 /* VISTA: Detalle de un carrito */
 router.get('/carts/:cid', async (req, res) => {
     try {
-        const cart = await cartManager.getById(req.params.cid);
-        // Enriquecer con datos del producto
-        const enrichedProducts = [];
-        for (const item of cart.products) {
-            try {
-                const product = await productManager.getById(item.product);
-                enrichedProducts.push({
+        const cart = await cartRepository.getByIdPopulated(req.params.cid);
+        if (!cart) return res.status(404).render('error', { message: 'Carrito no encontrado' });
+
+        const cartObj = cart.toObject();
+        const enrichedProducts = cartObj.products.map((item) => {
+            if (item.product) {
+                return {
                     ...item,
-                    title: product.title,
-                    price: product.price,
-                    subtotal: product.price * item.quantity
-                });
-            } catch {
-                enrichedProducts.push({ ...item, title: 'Producto eliminado', price: 0, subtotal: 0 });
+                    title: item.product.title,
+                    price: item.product.price,
+                    quantity: item.quantity,
+                    subtotal: item.product.price * item.quantity,
+                };
             }
-        }
+            return { ...item, title: 'Producto eliminado', price: 0, subtotal: 0 };
+        });
         const total = enrichedProducts.reduce((sum, p) => sum + p.subtotal, 0);
-        res.render('cart', { cart, products: enrichedProducts, total });
+        res.render('cart', { cart: cartObj, products: enrichedProducts, total });
     } catch (error) {
         res.status(404).render('error', { message: 'Carrito no encontrado' });
     }
@@ -59,7 +59,7 @@ router.get('/carts/:cid', async (req, res) => {
 /* ACCIÓN: Eliminar carrito */
 router.post('/carts/:cid/delete', async (req, res) => {
     try {
-        await cartManager.delete(req.params.cid);
+        await cartRepository.delete(req.params.cid);
         res.redirect('/carts');
     } catch (error) {
         res.redirect('/carts');
@@ -69,8 +69,9 @@ router.post('/carts/:cid/delete', async (req, res) => {
 /* ACCIÓN: Agregar producto a carrito */
 router.post('/carts/:cid/product/:pid', async (req, res) => {
     try {
-        await productManager.getById(req.params.pid);
-        await cartManager.addProduct(req.params.cid, req.params.pid);
+        const product = await productRepository.getById(req.params.pid);
+        if (!product) throw new Error('Producto no encontrado');
+        await cartRepository.addProduct(req.params.cid, req.params.pid);
         res.redirect(`/carts/${req.params.cid}`);
     } catch (error) {
         res.redirect('/carts');
@@ -81,60 +82,68 @@ router.post('/carts/:cid/product/:pid', async (req, res) => {
 /* ============================================ */
 /* --- VISTAS (Handlebars) - Productos          */
 /* ============================================ */
-/*Lista de productos */
+
+/* Lista de productos */
 router.get('/', async (req, res) => {
     try {
-        const products = await productManager.getAll();
-        res.render('home', { products }); // Renderiza la vista 'home' con los productos
+        const products = (await productRepository.getAll()).map(p => p.toObject());
+        res.render('home', { products });
     } catch (error) {
         res.status(500).render('error', { message: error.message });
     }
 });
 
 /* Detalle de producto */
-router.get ('/products/:pid'/* esta es la ruta que muestra el detalle del producto */, async (req, res) => { 
-    /* que hace? : Muestra el detalle de un producto específico. como? : Busca el producto por su ID en la base de datos y luego renderiza la vista con los detalles del producto */
+router.get('/products/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
-        const product = await productManager.getById(pid);
-        res.render('product', { product });// Renderiza la vista 'product' con el producto encontrado
+        const product = await productRepository.getById(pid);
+        if (!product) return res.status(404).render('error', { message: 'Producto no encontrado' });
+        res.render('product', { product: product.toObject() });
     } catch (error) {
         res.status(404).render('error', { message: 'Producto no encontrado' });
     }
 });
 
-/*Crear producto  */
+/* Crear producto */
 router.post('/products', async (req, res) => {
     try {
-        await productManager.addProduct(req.body);
+        const body = { ...req.body };
+        // Convertir thumbnails de string separado por comas a array
+        if (typeof body.thumbnails === 'string' && body.thumbnails.trim()) {
+            body.thumbnails = body.thumbnails.split(',').map(t => t.trim());
+        } else {
+            body.thumbnails = [];
+        }
+        await productRepository.create(body);
         res.redirect('/');
     } catch (error) {
-        const products = await productManager.getAll();
+        const products = (await productRepository.getAll()).map(p => p.toObject());
         res.render('home', { products, errorMessage: error.message });
     }
 });
 
-/*Eliminar producto  */
+/* Eliminar producto */
 router.post('/products/:pid/delete', async (req, res) => {
     try {
         const { pid } = req.params;
-        await productManager.delete(pid);
+        await productRepository.delete(pid);
         res.redirect('/');
     } catch (error) {
         res.redirect('/');
     }
 });
 
-/* MODIFICAR producto (desde formulario Handlebars) */
+/* Modificar producto (desde formulario Handlebars) */
 router.post('/products/:pid/update', async (req, res) => {
     const { pid } = req.params;
     try {
-        await productManager.updateProduct(pid, req.body);
+        await productRepository.update(pid, req.body);
         res.redirect(`/products/${pid}`);
     } catch (error) {
         try {
-            const product = await productManager.getById(pid);
-            res.status(400).render('product', { product, errorMessage: error.message });
+            const product = await productRepository.getById(pid);
+            res.status(400).render('product', { product: product.toObject(), errorMessage: error.message });
         } catch {
             res.status(404).render('error', { message: 'Producto no encontrado' });
         }
@@ -147,7 +156,7 @@ router.post('/products/:pid/update', async (req, res) => {
 /* ============================================ */
 router.get('/realtimeproducts', async (req, res) => {
     try {
-        const products = await productManager.getAll();
+        const products = (await productRepository.getAll()).map(p => p.toObject());
         res.render('realTimeProducts', { products });
     } catch (error) {
         res.status(500).render('error', { message: error.message });

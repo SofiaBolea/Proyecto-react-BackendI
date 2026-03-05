@@ -1,174 +1,260 @@
-# Proyecto React Backend I
+# Proyecto Backend I - Gestión de Productos y Carritos
 
-Servidor de gestión de productos y carritos construido con **Node.js**, **Express**, **Handlebars** y **Socket.io**. El proyecto practica la arquitectura de servidores REST + vistas renderizadas en el backend, incorporando una vista en tiempo real con WebSockets.
+Servidor de gestión de productos y carritos construido con **Node.js**, **Express**, **Handlebars**, **MongoDB** y **Socket.io**. El proyecto implementa arquitectura MVC con patrones REST + vistas renderizadas en el backend, incluyendo una vista en tiempo real con WebSockets y paginación completa.
 
-## ✨ Características principales
+## Características principales
 
 ### Backend
-- CRUD de productos y carritos con persistencia en archivos JSON (sin base de datos externa).
-- Endpoints REST para integraciones (`/api/products`, `/api/carts`).
-- Rutas de vistas HTTP clásicas (`/`, `/products/:pid`, `/carts`, `/carts/:cid`) renderizadas con Handlebars.
-- Vista `/realtimeproducts` que trabaja exclusivamente con **WebSockets** (Socket.io) para actualizar la lista de productos en tiempo real al crear o eliminar.
+- **CRUD de productos y carritos** con persistencia en **MongoDB** usando Mongoose.
+- **Endpoints REST** para integraciones (`/api/products`, `/api/carts`).
+- **Rutas de vistas HTTP** clásicas renderizadas con **Handlebars**.
+- **Sistema de paginación** con filtros (stock, categoría, precio) usando `mongoose-paginate-v2`.
+- **Vista en tiempo real** (`/realtimeproducts`) con **Socket.io** sincronizada entre clientes.
+- **Gestión completa de carritos**: crear, leer, actualizar cantidad, eliminar productos individuales, vaciar carrito.
 
 ### Frontend (server-side rendered)
-- Formularios clásicos (HTTP POST) para crear, editar y eliminar productos/carritos en las vistas tradicionales.
-- Confirmaciones y mensajes de error con **SweetAlert2**.
-- Búsqueda rápida por ID desde la vista principal.
-- Interfaz responsiva basada en **Bootstrap 5** y **Font Awesome**.
+- Formularios HTTP para crear, editar y eliminar productos/carritos.
+- **Confirmaciones con SweetAlert2** para operaciones sensibles.
+- **Búsqueda y filtros** por categoría, precio, estado de stock.
+- **Paginación dinámica** en listados.
+- Interfaz responsiva con **Bootstrap 5** y **Font Awesome**.
 
-### Tiempo real (WebSockets)
-- La vista `/realtimeproducts` se conecta por Socket.io al servidor.
-- Cada vez que un cliente crea o elimina un producto desde esa vista, **todos los clientes conectados** reciben la lista actualizada automáticamente.
-- Registro simple de usuario al ingresar (SweetAlert) con notificaciones Toastify cuando se conectan otros usuarios.
+### Arquitectura
+- **Repository Pattern**: Acceso a datos centralizado y reutilizable.
+- **MVC separado**: Models, Controllers, Routes bien organizados.
+- **WebSockets con paginación**: Sincronización en tiempo real con control de páginas.
+- **Routers modularizados**: Cada funcionalidad tiene su propio router (productos, carritos, tiempo real, vistas).
+
+## 📋 Estructura de routers
+
+En `server.js` se registran todos los routers de la aplicación:
+
+```javascript
+app.use('/api/products', apiProductsRouter);      // API REST + vistas productos
+app.use('/api/carts', apiCartsRouter);            // API REST + vistas carritos
+app.use('/realtimeproducts', realtimeRouter);     // Vista tiempo real (WebSocket)
+app.use(viewsRouter);                             // Rutas generales (home)
+```
+
+Cada router es independiente y maneja sus propias rutas y lógica.
 
 ## 🏗 Estructura del proyecto
 
 ```
-├── data/                        # Archivos JSON de persistencia
-│   ├── products.json
-│   └── carts.json
-├── managers/                    # Lógica de negocio
-│   ├── ProductManager.js
-│   └── CartManager.js
-├── public/                      # JS del cliente (realtime)
-│   └── index.js                 # Lógica Socket.io + SweetAlert (solo corre en /realtimeproducts)
-└── src/
-    ├── server.js                # Express + Socket.io + Handlebars
-    ├── public/                  # Assets estáticos (CSS)
-    │   └── styles.css
-    ├── routes/
-    │   ├── products.router.js   # API REST Productos
-    │   ├── carts.router.js      # API REST Carritos
-    │   └── views.routes.js      # Todas las vistas (HTTP + /realtimeproducts)
-    └── views/
-        ├── layouts/main.handlebars  # Layout con navbar y scripts globales
-        ├── home.handlebars          # Lista de productos (HTTP)
-        ├── product.handlebars       # Detalle de producto (HTTP)
-        ├── carts.handlebars         # Lista de carritos (HTTP)
-        ├── cart.handlebars          # Detalle de carrito (HTTP)
-        ├── realTimeProducts.handlebars  # Productos en tiempo real (WebSocket)
-        └── error.handlebars         # Página de error
+src/
+├── config/
+│   └── db-connection.js         # Conexión MongoDB
+├── controllers/
+│   ├── product-controller.js    # Lógica de productos
+│   └── cart-controller.js       # Lógica de carritos
+├── models/
+│   ├── product-model.js         # Schema Mongoose productos
+│   └── cart-models.js           # Schema Mongoose carritos
+├── repositories/
+│   ├── product-repository.js    # Data access productos
+│   └── cart-repository.js       # Data access carritos
+├── routes/
+│   ├── products.router.js       # Rutas API/vistas productos
+│   ├── carts.router.js          # Rutas API/vistas carritos
+│   ├── realtime.routes.js       # Rutas vista tiempo real (WebSocket)
+│   └── views.router.js          # Rutas principales vistas
+├── views/
+│   ├── home.handlebars          # Lista productos (paginada)
+│   ├── product.handlebars       # Detalle producto
+│   ├── cart.handlebars          # Detalle carrito
+│   ├── carts.handlebars         # Lista carritos
+│   ├── realTimeProducts.handlebars  # Productos tiempo real
+│   ├── error.handlebars         # Página error
+│   └── layouts/main.handlebars  # Layout base
+├── public/
+│   ├── products.js              # JS vistas productos
+│   ├── cart.js                  # JS carrito (cantidad, eliminar)
+│   ├── realtime.js              # JS WebSocket página real-time
+│   └── styles.css               # Estilos
+├── middlewares/
+│   └── error-handler.js         # Manejo centralizado de errores
+└── server.js                    # Express + Socket.io + Handlebars
 ```
 
 ## 🚀 Puesta en marcha
 
-1. Clonar el repositorio.
-2. Instalar dependencias:
+### Requisitos
+- Node.js v20+
+- MongoDB (local o atlas)
+- npm
+
+### Instalación
+
+1. **Clonar repositorio**
+   ```bash
+   git clone <repo-url>
+   cd Proyecto-react-BackendI
+   ```
+
+2. **Instalar dependencias**
    ```bash
    npm install
    ```
-3. Iniciar el servidor:
-   ```bash
-   npm run dev   # modo watch (reinicia con cambios)
-   npm start     # modo normal
-   ```
-4. Abrir [http://localhost:8080](http://localhost:8080).
 
-## 📡 Endpoints REST
+3. **Configurar variables de entorno** (crear `.env`)
+   ```env
+   MONGO_URL=mongodb://localhost:27017/tu-base-datos
+   PORT=8080
+   ```
+
+4. **Iniciar servidor**
+   ```bash
+   npm start      # Modo normal
+   npm run dev    # Modo watch (reloads automáticos)
+   ```
+
+5. **Acceder a la aplicación**
+   - Interfaz web: [http://localhost:8080](http://localhost:8080)
+   - Productos tiempo real: [http://localhost:8080/realtimeproducts](http://localhost:8080/realtimeproducts)
+
+## 📡 Endpoints REST API
 
 ### Productos (`/api/products`)
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| `GET` | `/api/products` | Listar todos los productos |
-| `GET` | `/api/products/:pid` | Obtener producto por ID |
-| `POST` | `/api/products` | Crear producto (title, description, code, price, stock, category; thumbnails opcional) |
-| `PUT` | `/api/products/:pid` | Actualizar campos enviados |
-| `DELETE` | `/api/products/:pid` | Eliminar producto |
+
+| Método | Ruta | Descripción | Body |
+|--------|------|-------------|------|
+| `GET` | `/` | Listar productos paginados | - |
+| `GET` | `?page=1&limit=10&sort=asc&status=available&query=electronica` | Filtros: paginación, precio, stock, categoría | - |
+| `GET` | `/all` | Todos los productos (sin paginación) | - |
+| `GET` | `/:pid` | Obtener producto por ID | - |
+| `POST` | `/` | Crear producto | `{title, description, code, price, stock, category, thumbnails?}` |
+| `PUT` | `/:pid` | Actualizar producto | `{campos a actualizar}` |
+| `DELETE` | `/:pid` | Eliminar producto | - |
 
 ### Carritos (`/api/carts`)
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| `POST` | `/api/carts` | Crear carrito vacío |
-| `GET` | `/api/carts` | Listar todos los carritos |
-| `GET` | `/api/carts/:cid` | Obtener contenido del carrito |
-| `POST` | `/api/carts/:cid/product/:pid` | Agregar producto al carrito |
 
-## 🧩 Vistas (Handlebars)
+| Método | Ruta | Descripción | Body |
+|--------|------|-------------|------|
+| `POST` | `/` | Crear carrito vacío | - |
+| `GET` | `/:cid` | Obtener contenido carrito | - |
+| `POST` | `/:cid/products/:pid` | Agregar producto a carrito | `{quantity?}` |
+| `PUT` | `/:cid` | Actualizar todos los productos del carrito | `[{product: id, quantity}, ...]` |
+| `PUT` | `/:cid/products/:pid` | Actualizar cantidad de producto | `{quantity}` |
+| `DELETE` | `/:cid/products/:pid` | Eliminar producto del carrito | - |
+| `DELETE` | `/:cid` | Vaciar carrito (eliminar todos productos) | - |
 
-| Ruta | Método | Descripción |
-| --- | --- | --- |
-| `/` | HTTP | Formulario para crear productos y tabla con acciones ver/eliminar |
-| `/products/:pid` | HTTP | Detalle del producto + formulario de actualización |
-| `/carts` | HTTP | Listado de carritos con botones para ver/eliminar |
-| `/carts/:cid` | HTTP | Detalle del carrito con productos enriquecidos |
-| `/realtimeproducts` | **WebSocket** | Formulario + tabla sincronizados en tiempo real vía Socket.io |
+## 🧩 Vistas (Handlebars + HTTP)
 
-## 🔌 Arquitectura WebSocket
+| Ruta | Router | Método | Descripción |
+|------|--------|--------|-------------|
+| `/` | views.router | GET | Inicio - redirige a `/api/products/view` |
+| `/api/products/view` | products.router | GET | Formulario crear producto + tabla paginada |
+| `/product/:pid` | products.router | GET | Detalle de producto + formulario actualización |
+| `/carts` | carts.router | GET | Listado de carritos |
+| `/cart/:cid` | carts.router | GET | Detalle carrito - gestionar cantidades, eliminar productos, vaciar |
+| `/realtimeproducts` | realtime.routes | GET | Tabla tiempo real sincronizada por WebSocket |
 
-1. En `server.js` se crea el servidor Socket.io sobre el servidor HTTP de Express.
-2. Al conectarse un cliente a `/realtimeproducts`, recibe la lista completa de productos.
-3. Cuando un cliente emite `newProduct` o `deleteProduct`, el servidor ejecuta la operación y emite `products` a **todos** los clientes conectados.
-4. Los errores de validación (código duplicado, campos faltantes) se envían solo al cliente que los originó mediante el evento `productError`.
+## 🔌 WebSocket (Socket.io)
 
-## ✅ Futuras mejoras
+### Eventos desde servidor → cliente
 
-## ❓ ¿Cómo utilizar un emit de Socket.io dentro de un POST HTTP?
+```javascript
+// Inicial + tras cambios
+socket.emit('products', {
+  docs: [...productos],
+  page: 1,
+  totalPages: 5,
+  hasPrevPage: false,
+  hasNextPage: true,
+  prevPage: null,
+  nextPage: 2
+})
 
-En este proyecto, la vista `/realtimeproducts` maneja la creación y eliminación de productos **directamente por WebSocket** (el cliente emite eventos y el servidor los procesa dentro de `socketServer.on('connection', ...)`). Sin embargo, si quisiéramos que una ruta HTTP clásica (como un `POST`) también notifique a los clientes conectados por WebSocket, el enfoque sería el siguiente:
-
-### Paso 1 — Guardar la instancia de Socket.io en Express
-
-En `server.js`, después de crear el servidor de sockets, lo almacenamos en `app` para que esté disponible en cualquier router:
-
-```js
-// server.js
-const socketServer = new Server(httpServer);
-app.set('io', socketServer);  // ← clave: guardamos la instancia
+// Errores
+socket.emit('productError', 'Mensaje de error')
 ```
 
-### Paso 2 — Recuperar `io` dentro del handler POST
+### Eventos desde cliente → servidor
 
-Desde cualquier ruta HTTP accedemos a la instancia con `req.app.get('io')` y emitimos el evento que necesitemos:
+```javascript
+// Solicitar página específica
+socket.emit('requestPage', { page: 2, limit: 10 })
 
-```js
-// Ejemplo: en views.routes.js, el POST que crea un producto vía formulario
-router.post('/products', async (req, res) => {
-    try {
-        await productManager.addProduct(req.body);
-
-        // Notificar a todos los clientes WebSocket conectados
-        const io = req.app.get('io');
-        if (io) {
-            const products = await productManager.getAll();
-            io.emit('products', products);
-        }
-
-        res.redirect('/');
-    } catch (error) {
-        const products = await productManager.getAll();
-        res.render('home', { products, errorMessage: error.message });
-    }
-});
+// Usuario conectado (notifica a otros)
+socket.emit('newUserFront', { username: 'Juan' })
 ```
 
-### ¿Por qué funciona?
+## 🔐 Validaciones
 
-- `app.set('io', socketServer)` almacena la referencia al servidor Socket.io dentro del objeto `app` de Express.
-- `req.app.get('io')` la recupera desde cualquier middleware o router, sin necesidad de importar variables globales.
-- Al llamar `io.emit('products', products)`, **todos** los clientes conectados (por ejemplo los que están en `/realtimeproducts`) reciben la lista actualizada, incluso si el producto fue creado desde un formulario HTTP clásico.
+### Productos
+- `title`, `description`, `code`, `price`, `stock`, `category`: **requeridos**
+- `code`: debe ser **único** en la BD
+- `price`, `stock`: deben ser **números**
+- `thumbnails`: array de strings o vacío
 
-### ¿Cómo lo resuelvo actualmente?
+### Carritos
+- Permite agregar los mismos productos múltiples veces (suma cantidades)
+- Actualizar carrito requiere array de objetos con `product` e `quantity`
 
-En la implementación actual del proyecto, la vista `/realtimeproducts` **no usa HTTP para crear/eliminar productos**. En su lugar, el cliente envía eventos directamente por WebSocket y el servidor los procesa en `server.js`:
+## ✅ Características implementadas
 
-```js
-// server.js — dentro de socketServer.on('connection', ...)
-socket.on('newProduct', async (data) => {
-    try {
-        await productManager.addProduct(data);
-        socketServer.emit('products', await productManager.getAll());
-    } catch (error) {
-        socket.emit('productError', error.message);
-    }
-});
+- ✅ Paginación con filtros avanzados
+- ✅ Arquitectura MVC + Repository Pattern
+- ✅ MongoDB + Mongoose
+- ✅ CRUD completo productos y carritos
+- ✅ WebSocket sincronizado con paginación
+- ✅ Manejo de errores centralizado
+- ✅ Interfaz responsiva Bootstrap 5
+- ✅ Confirmaciones SweetAlert2
+
+## 📦 Dependencias principales
+
+```json
+{
+  "express": "^4.x",
+  "mongoose": "^8.x",
+  "mongoose-paginate-v2": "^1.x",
+  "express-handlebars": "^7.x",
+  "socket.io": "^4.x"
+}
 ```
 
-Ambos enfoques son válidos. La diferencia es que con `req.app.get('io')` se puede **mezclar HTTP y WebSocket** en la misma operación, lo que es útil cuando se quiere que un formulario clásico también actualice a los clientes en tiempo real.
+## 📝 Ejemplos de uso (cURL/Postman)
 
-## ✅ Futuras mejoras
-- Reemplazar JSON por una base de datos real.
-- Añadir autenticación/autorización.
-- Migrar el frontend a un framework.
+### Crear producto
+```bash
+curl -X POST http://localhost:8080/api/products/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Laptop Dell",
+    "description": "Gaming laptop",
+    "code": "DELL-001",
+    "price": 1299.99,
+    "stock": 10,
+    "category": "Computadoras"
+  }'
+```
+
+### Obtener productos paginados
+```bash
+curl "http://localhost:8080/api/products?page=1&limit=10&sort=asc&status=available"
+```
+
+### Agregar producto a carrito
+```bash
+curl -X POST http://localhost:8080/api/carts/cartId123/products/productId456 \
+  -H "Content-Type: application/json" \
+  -d '{"quantity": 2}'
+```
+
+## 🐛 Troubleshooting
+
+**Problema**: "ValidationError: category is required"
+- **Solución**: Asegúrate de enviar JSON (no form-data) con Content-Type correcta en Postman
+
+**Problema**: "Carrito no encontrado"
+- **Solución**: Verifica que el ID sea válido (24 chars hex) y exista en MongoDB
+
+**Problema**: WebSocket no se conecta
+- **Solución**: Verifica que el servidor esté corriendo en puerto 8080 y `socket.io` esté habilitado
 
 ---
-Proyecto desarrollado como práctica de la asignatura *Backend I*.
+
+**Desarrollado como práctica de Backend I**
+
+

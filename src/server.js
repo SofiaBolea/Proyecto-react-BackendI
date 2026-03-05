@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import { engine } from 'express-handlebars';
 import apiProductsRouter from './routes/products.router.js';
 import apiCartsRouter from './routes/carts.router.js';
+import realtimeRouter from './routes/realtime.routes.js';
 import path from 'path';
 import viewsRouter from './routes/views.router.js';
 import { productRepository } from './repositories/product-repository.js';
@@ -20,16 +21,6 @@ const socketServer = new Server(httpServer);
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware
-app.use((req, res, next) => {
-  if (req.method === 'POST') {
-    console.log(`\n🔍 [DEBUG] ${req.method} ${req.path}`);
-    console.log("Content-Type:", req.headers['content-type']);
-    console.log("Body received:", req.body);
-  }
-  next();
-});
-
 /* --- HANDLEBARS --- */
 app.engine('handlebars', engine({
     helpers: {
@@ -43,6 +34,7 @@ app.set('views', path.join(process.cwd(), "src", "views"));
 /* --- RUTAS --- */
 app.use('/api/products', apiProductsRouter);
 app.use('/api/carts', apiCartsRouter);
+app.use('/realtimeproducts', realtimeRouter);
 app.use(viewsRouter);
 
 /* --- ARCHIVOS ESTÁTICOS (después de las rutas para que no pisen las vistas) --- */

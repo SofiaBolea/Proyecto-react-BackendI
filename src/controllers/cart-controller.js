@@ -1,63 +1,78 @@
 import { cartRepository } from "../repositories/cart-repository.js";
 import { productRepository } from "../repositories/product-repository.js";
-import { CustomError } from "../utils/custom-error.js";
 
 class CartController {
   constructor(repository) {
     this.repository = repository;
   }
 
-  getAll = async (req, res, next) => {
+  /* ============================================= */
+  /* --- VISTAS (Handlebars)                      */
+  /* ============================================= */
+
+  renderAll = async (req, res, next) => {
     try {
-      const carts = await this.repository.getAll();
-      res.json(carts);
+      const carts = (await this.repository.getAll()).map(c => c.toObject());
+      res.render('carts', { carts });
     } catch (error) {
-      next(error);
+      res.status(500).render('error', { message: error.message });
     }
   };
 
-  getById = async (req, res, next) => {
+  renderById = async (req, res, next) => {
     try {
       const { cid } = req.params;
-      const cart = await this.repository.getById(cid);
-      if (!cart) throw new CustomError("Carrito no encontrado", 404);
-      res.json(cart.products);
+      const cart = await this.repository.getByIdPopulated(cid);
+      if (!cart) return res.status(404).render('error', { message: 'Carrito no encontrado' });
+
+      const cartObj = cart.toObject();
+      const enrichedProducts = cartObj.products.map((item) => {
+        if (item.product) {
+          return {
+            ...item,
+            title: item.product.title,
+            price: item.product.price,
+            quantity: item.quantity,
+            subtotal: item.product.price * item.quantity,
+          };
+        }
+        return { ...item, title: 'Producto eliminado', price: 0, subtotal: 0 };
+      });
+      const total = enrichedProducts.reduce((sum, p) => sum + p.subtotal, 0);
+      res.render('cart', { cart: cartObj, products: enrichedProducts, total });
     } catch (error) {
-      next(error);
+      res.status(404).render('error', { message: 'CARRITO no encontrado' });
     }
   };
 
-  create = async (req, res, next) => {
+  createAndRedirect = async (req, res, next) => {
     try {
-      const cart = await this.repository.create();
-      res.status(201).json(cart);
+      await this.repository.create();
+      res.redirect('/carts/api/view');
     } catch (error) {
-      next(error);
+      res.redirect('/carts/api/view');
+    }
+  };
+
+
+  addProductAndRedirect = async (req, res, next) => {
+    try {
+      const { cid, pid } = req.params;
+      const response = await this.repository.addProduct(cid, pid);
+      if (!response) res.status(404).render('error', { message: 'Carrito no encontrado' });
+      res.redirect(`/carts/api/${cid}`);
+    } catch (error) {
+      res.status(404).render('error', { message: 'Carrito no encontrado' });
     }
   };
 
   delete = async (req, res, next) => {
     try {
       const { cid } = req.params;
-      const cart = await this.repository.delete(cid);
-      if (!cart) throw new CustomError("Carrito no encontrado", 404);
-      res.json(cart);
+      await this.repository.delete(cid);
+      res.status(204).send();
     } catch (error) {
-      next(error);
-    }
-  };
-
-  addProduct = async (req, res, next) => {
-    try {
-      const { cid, pid } = req.params;
-      // Validar que el producto exista
-      const product = await productRepository.getById(pid);
-      if (!product) throw new CustomError("Producto no encontrado", 404);
-
-      const updatedCart = await this.repository.addProduct(cid, pid);
-      res.json(updatedCart);
-    } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   };
 }

@@ -1,5 +1,4 @@
-// Punto de entrada del servidor Express + Socket.io: configura middlewares,
-// motor de vistas, rutas API y la instancia WebSocket compartida.
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -7,7 +6,7 @@ import { engine } from 'express-handlebars';
 import apiProductsRouter from './routes/products.router.js';
 import apiCartsRouter from './routes/carts.router.js';
 import path from 'path';
-import viewsRouter from './routes/views.routes.js';
+import viewsRouter from './routes/views.router.js';
 import { productRepository } from './repositories/product-repository.js';
 import errorHandler from './middlewares/error-handler.js';
 import { initMongoDB } from './config/db-connection.js';
@@ -27,8 +26,8 @@ app.set('view engine', 'handlebars');
 app.set('views', path.join(process.cwd(), "src", "views")); 
 
 /* --- RUTAS --- */
-app.use('/api/products', apiProductsRouter);
-app.use('/api/carts', apiCartsRouter);
+app.use('/products/api', apiProductsRouter);
+app.use('/carts/api', apiCartsRouter);
 app.use(viewsRouter);
 
 /* --- ARCHIVOS ESTÁTICOS (después de las rutas para que no pisen las vistas) --- */

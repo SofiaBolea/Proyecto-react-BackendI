@@ -1,5 +1,5 @@
 import { CartModel } from "../models/cart-models.js";
-
+import { productRepository } from "./product-repository.js";
 class CartRepository {
   constructor(model) {
     this.model = model;
@@ -23,7 +23,7 @@ class CartRepository {
 
   getByIdPopulated = async (id) => {
     try {
-      return await this.model.findById(id).populate("products.product");
+      return await this.model.findById(id).populate('products.product');
     } catch (error) {
       throw new Error(error);
     }
@@ -50,18 +50,23 @@ class CartRepository {
       const cart = await this.model.findById(cartId);
       if (!cart) throw new Error("Carrito no encontrado");
 
+      const existeProducto = await productRepository.getById(productId);
+      if (!existeProducto) throw new Error("Producto no encontrado");
+
       const item = cart.products.find(
-        (p) => p.product.toString() === productId
+        (p) => p.product.toString() === productId,
       );
 
       if (item) {
         item.quantity += 1;
+        return await cart.save();
       } else {
-        cart.products.push({ product: productId, quantity: 1 });
+        return await this.model.findByIdAndUpdate(
+          cartId,
+          { $push: { products: { product: productId, quantity: 1 } } },
+          { returnDocument: true },
+        );
       }
-
-      await cart.save();
-      return cart;
     } catch (error) {
       throw new Error(error);
     }

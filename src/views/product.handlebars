@@ -1,7 +1,7 @@
 {{!-- Vista detalle de un producto: muestra datos y formularios para eliminar/editar. --}}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <a href="/" class="btn btn-outline-secondary mb-3">
+        <a href="/products/api/view" class="btn btn-outline-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Volver a Productos
         </a>
 
@@ -45,9 +45,8 @@
                 </div>
             </div>
             <div class="card-footer text-end">
-                <form action="/products/{{product._id}}/delete" method="POST" style="display:inline"
-                      onsubmit="return confirmDelete(event, this)">
-                    <button type="submit" class="btn btn-danger">
+                <form style="display:inline">
+                    <button type="button" class="btn btn-danger" onclick="deleteProduct('{{product._id}}')">
                         <i class="fas fa-trash"></i> Eliminar
                     </button>
                 </form>
@@ -59,7 +58,7 @@
                 <h5 class="mb-0"><i class="fas fa-edit"></i> Modificar producto</h5>
             </div>
             <div class="card-body">
-                <form action="/products/{{product._id}}/update" method="POST">
+                <form id="updateForm" onsubmit="updateProduct(event, '{{product._id}}')">
                     <div class="mb-2">
                         <label class="form-label">Título</label>
                         <input type="text" name="title" class="form-control" value="{{product.title}}" required />

@@ -1,7 +1,7 @@
 {{!-- Vista para un carrito puntual: muestra productos y permite agregar más items. --}}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <a href="/carts" class="btn btn-outline-secondary mb-3">
+        <a href="/carts/api/view" class="btn btn-outline-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Volver a Carritos
         </a>
 
@@ -53,7 +53,7 @@
                 <i class="fas fa-cart-plus"></i> Agregar Producto a este Carrito
             </div>
             <div class="card-body">
-                <form action="/carts/{{cart._id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart._id}}">
+                <form action="/carts/api/{{cart._id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart._id}}">
                     <div class="input-group">
                         <select class="form-select" id="productSelect" required>
                             <option value="">Seleccionar producto...</option>

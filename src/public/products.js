@@ -28,7 +28,7 @@ function searchProductById() {
     }
     
     // Navegar a la página de detalle del producto usando fetch
-    navigateTo(`/products/api/${productId}`);
+    navigateTo(`/api/products/${productId}`);
 }
 
 // Función para actualizar producto
@@ -38,14 +38,14 @@ function updateProduct(event, productId) {
     const formData = new FormData(form);
     const body = Object.fromEntries(formData);
 
-    fetch(`/products/api/${productId}`, {
+    fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     })
     .then(r => {
         if (r.ok) {
-            navigateTo(`/products/api/${productId}`);
+            navigateTo(`/api/products/${productId}`);
         } else {
             throw new Error('Error al actualizar');
         }
@@ -68,10 +68,10 @@ function deleteProduct(productId) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/products/api/${productId}`, { method: 'DELETE' })
+            fetch(`/api/products/${productId}`, { method: 'DELETE' })
                 .then(r => {
                     if (r.ok) {
-                        navigateTo('/products/api/view');
+                        navigateTo('/api/products/view');
                     } else {
                         throw new Error('Error al eliminar');
                     }

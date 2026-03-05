@@ -5,9 +5,35 @@ class ProductRepository {
     this.model = model;
   }
 
-  getAll = async () => {
+  getAll = async ({ page = 1, limit = 10, query = null, sort = null, status = null } = {}) => {
     try {
-      return await this.model.find();
+      // Construir filtro de búsqueda
+      const filter = {};
+      
+      // Filtro por estado de stock
+      if (status === 'available') {
+        filter.stock = { $gt: 0 };
+      } else if (status === 'unavailable') {
+        filter.stock = 0;
+      }
+      
+      // Filtro por categoría (texto)
+      if (query) {
+        filter.category = { $regex: query, $options: 'i' };
+      }
+
+      // Construir sort
+      const sortOption = sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : {};
+
+      return await this.model.paginate(filter, { page, limit, sort: sortOption });
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  getAllNoPagination = async () => {
+    try {
+      return await this.model.find().lean();
     } catch (error) {
       throw new Error(error);
     }

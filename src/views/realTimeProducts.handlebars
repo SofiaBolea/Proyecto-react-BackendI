@@ -41,6 +41,7 @@
         <div class="card shadow-sm">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-list"></i> Listado de Productos</span>
+                <span class="badge bg-light text-dark" id="pageInfo">Cargando...</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -61,6 +62,16 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+            {{!-- Paginación --}}
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <button id="prevPageBtn" class="btn btn-sm btn-outline-primary" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="text-muted" id="paginationText">Página 1 de 1</span>
+                <button id="nextPageBtn" class="btn btn-sm btn-outline-primary" disabled>
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </div>

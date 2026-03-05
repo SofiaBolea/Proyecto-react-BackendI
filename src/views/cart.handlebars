@@ -1,14 +1,21 @@
 {{!-- Vista para un carrito puntual: muestra productos y permite agregar más items. --}}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <a href="/carts/api/view" class="btn btn-outline-secondary mb-3">
+        <a href="/api/carts/view" class="btn btn-outline-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Volver a Carritos
         </a>
 
         <div class="card shadow-sm mb-3">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Carrito</h5>
-                <small>{{cart._id}}</small>
+                <div class="d-flex align-items-center gap-2">
+                    <small>{{cart._id}}</small>
+                    {{#if products.length}}
+                    <button type="button" class="btn btn-sm btn-outline-light" title="Vaciar carrito" onclick="clearCart('{{cart._id}}')">
+                        <i class="fas fa-broom"></i> Vaciar
+                    </button>
+                    {{/if}}
+                </div>
             </div>
             <div class="card-body p-0">
                 {{#if products.length}}
@@ -19,21 +26,34 @@
                             <th>Cantidad</th>
                             <th>Precio Unit.</th>
                             <th>Subtotal</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{#each products}}
                         <tr>
                             <td>{{this.title}}</td>
-                            <td><span class="badge bg-primary">{{this.quantity}}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="number" class="form-control form-control-sm" style="width: 70px;" min="1" value="{{this.quantity}}" id="qty-{{this.product._id}}" />
+                                    <button type="button" class="btn btn-sm btn-outline-primary" title="Actualizar cantidad" onclick="updateQuantity('{{../cart._id}}', '{{this.product._id}}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>${{this.price}}</td>
                             <td class="fw-bold">${{this.subtotal}}</td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-danger" title="Eliminar del carrito" onclick="removeFromCart('{{../cart._id}}', '{{this.product._id}}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
                         {{/each}}
                     </tbody>
                     <tfoot class="table-dark">
                         <tr>
-                            <td colspan="3" class="text-end fw-bold">TOTAL:</td>
+                            <td colspan="4" class="text-end fw-bold">TOTAL:</td>
                             <td class="fw-bold fs-5">${{total}}</td>
                         </tr>
                     </tfoot>
@@ -47,13 +67,42 @@
             </div>
         </div>
 
+        {{!-- Formulario para actualizar todos los productos del carrito --}}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-edit"></i> Reemplazar productos del carrito
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-2">Seleccioná los productos y cantidades. Esto reemplazará todos los productos actuales del carrito.</p>
+                <div id="updateProductsList">
+                    <div class="input-group mb-2 product-row">
+                        <select class="form-select update-product-select" required>
+                            <option value="">Seleccionar producto...</option>
+                        </select>
+                        <input type="number" class="form-control update-product-qty" min="1" value="1" style="max-width: 80px;" placeholder="Cant." />
+                        <button type="button" class="btn btn-outline-danger" onclick="this.closest('.product-row').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addProductRow()">
+                        <i class="fas fa-plus"></i> Agregar fila
+                    </button>
+                    <button type="button" class="btn btn-sm btn-warning" onclick="updateCartProducts('{{cart._id}}')">
+                        <i class="fas fa-sync-alt"></i> Actualizar carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+
         {{!-- Formulario para agregar producto al carrito --}}
         <div class="card shadow-sm">
             <div class="card-header bg-success text-white">
                 <i class="fas fa-cart-plus"></i> Agregar Producto a este Carrito
             </div>
             <div class="card-body">
-                <form action="/carts/api/{{cart._id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart._id}}">
+                <form action="/api/carts/{{cart._id}}/product/___PID___" method="POST" id="addToCartForm" data-cart-id="{{cart._id}}">
                     <div class="input-group">
                         <select class="form-select" id="productSelect" required>
                             <option value="">Seleccionar producto...</option>

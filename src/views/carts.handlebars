@@ -8,7 +8,7 @@
 <div class="row justify-content-center">
     <div class="col-md-8">
         {{!-- Botón crear carrito --}}
-        <form action="/carts/api" method="POST" class="mb-3">
+        <form action="/api/carts" method="POST" class="mb-3">
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-plus-circle"></i> Crear Nuevo Carrito
             </button>
@@ -35,7 +35,7 @@
                                 <td><small class="text-muted">{{this._id}}</small></td>
                                 <td>{{this.products.length}} productos</td>
                                 <td class="text-end">
-                                    <a href="/carts/api/{{this._id}}" class="btn btn-sm btn-info me-1">
+                                    <a href="/api/carts/{{this._id}}" class="btn btn-sm btn-info me-1">
                                         <i class="fas fa-eye"></i> Ver
                                     </a>
                                     <button type="button" class="btn btn-sm btn-danger" onclick="deleteCart('{{this._id}}')">
@@ -55,10 +55,10 @@
                                             cancelButtonText: 'Cancelar'
                                         }).then((result) => {
                                             if (result.isConfirmed) {
-                                                fetch(`/carts/api/${cartId}`, { method: 'DELETE' })
+                                                fetch(`/api/carts/${cartId}/full`, { method: 'DELETE' })
                                                     .then(r => {
                                                         if (r.ok) {
-                                                            window.location.href = '/carts/api/view';
+                                                            window.location.href = '/api/carts/view';
                                                         } else {
                                                             throw new Error('Error al eliminar');
                                                         }

@@ -20,14 +20,29 @@ const socketServer = new Server(httpServer);
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    console.log(`\n🔍 [DEBUG] ${req.method} ${req.path}`);
+    console.log("Content-Type:", req.headers['content-type']);
+    console.log("Body received:", req.body);
+  }
+  next();
+});
+
 /* --- HANDLEBARS --- */
-app.engine('handlebars', engine());
+app.engine('handlebars', engine({
+    helpers: {
+        eq: (a, b) => a === b,
+        ne: (a, b) => a !== b
+    }
+}));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(process.cwd(), "src", "views")); 
 
 /* --- RUTAS --- */
-app.use('/products/api', apiProductsRouter);
-app.use('/carts/api', apiCartsRouter);
+app.use('/api/products', apiProductsRouter);
+app.use('/api/carts', apiCartsRouter);
 app.use(viewsRouter);
 
 /* --- ARCHIVOS ESTÁTICOS (después de las rutas para que no pisen las vistas) --- */
@@ -42,14 +57,54 @@ socketServer.on('connection', async(socket) => {
 
     socket.on('newUserFront', (user) => {
         socket.broadcast.emit('newUser', user);
-    }) /* socket.on sirve para escuchar eventos enviados por el cliente */
+    })
 
-	socketServer.emit('products', await productRepository.getAll()) /* socket.emit sirve para enviar eventos al cliente */
+	// Enviar primera página al conectarse
+	const initialResult = await productRepository.getAll({ page: 1, limit: 10 });
+	socket.emit('products', {
+		docs: initialResult.docs,
+		page: initialResult.page,
+		totalPages: initialResult.totalPages,
+		hasPrevPage: initialResult.hasPrevPage,
+		hasNextPage: initialResult.hasNextPage,
+		prevPage: initialResult.prevPage,
+		nextPage: initialResult.nextPage
+	})
+
+	// Cliente pide una página específica
+	socket.on('requestPage', async (pageData) => {
+		try {
+			const page = pageData.page || 1;
+			const limit = pageData.limit || 10;
+			const result = await productRepository.getAll({ page, limit });
+			socket.emit('products', {
+				docs: result.docs,
+				page: result.page,
+				totalPages: result.totalPages,
+				hasPrevPage: result.hasPrevPage,
+				hasNextPage: result.hasNextPage,
+				prevPage: result.prevPage,
+				nextPage: result.nextPage
+			});
+		} catch (error) {
+			socket.emit('productError', error.message);
+		}
+	})
 	
 	socket.on('newProduct', async (data) => {
 		try {
 			await productRepository.create(data);
-			socketServer.emit('products', await productRepository.getAll())
+			// Reenviar página 1 a todos los clientes
+			const result = await productRepository.getAll({ page: 1, limit: 10 });
+			socketServer.emit('products', {
+				docs: result.docs,
+				page: result.page,
+				totalPages: result.totalPages,
+				hasPrevPage: result.hasPrevPage,
+				hasNextPage: result.hasNextPage,
+				prevPage: result.prevPage,
+				nextPage: result.nextPage
+			})
 		} catch (error) {
 			socket.emit('productError', error.message);
 		}
@@ -58,7 +113,16 @@ socketServer.on('connection', async(socket) => {
 	socket.on('deleteProduct', async (pid) => {
 		try {
 			await productRepository.delete(pid);
-			socketServer.emit('products', await productRepository.getAll())
+			const result = await productRepository.getAll({ page: 1, limit: 10 });
+			socketServer.emit('products', {
+				docs: result.docs,
+				page: result.page,
+				totalPages: result.totalPages,
+				hasPrevPage: result.hasPrevPage,
+				hasNextPage: result.hasNextPage,
+				prevPage: result.prevPage,
+				nextPage: result.nextPage
+			})
 		} catch (error) {
 			socket.emit('productError', error.message);
 		}

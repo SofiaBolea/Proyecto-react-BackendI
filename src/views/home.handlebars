@@ -20,7 +20,7 @@
                 <i class="fas fa-plus-circle"></i> Crear Nuevo Producto
             </div>
             <div class="card-body">
-                <form action="/products/api" method="POST">
+                <form action="/api/products" method="POST">
                     <input type="text" name="title" class="form-control mb-2" placeholder="Título del producto" required />
                     <input type="text" name="description" class="form-control mb-2" placeholder="Descripción" required />
                     <input type="text" name="code" class="form-control mb-2" placeholder="Código único (ej: AA-123)" required />
@@ -45,22 +45,46 @@
     {{!-- Tabla de productos --}}
     <div class="col-md-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-list"></i> Listado de Productos</span>
-                <div class="d-flex align-items-center">
-                    <span class="badge bg-light text-dark me-3">{{products.length}} productos</span>
-                    <form id="searchForm" class="d-flex" onsubmit="event.preventDefault(); searchProductById();">
-                        <input 
-                          type="text"
-                          id="searchIdInput"
-                          class="form-control form-control-sm me-2"
-                          placeholder="Buscar por ID"
-                        />
-                        <button class="btn btn-sm btn-outline-light" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
+            <div class="card-header bg-dark text-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span><i class="fas fa-list"></i> Listado de Productos</span>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light text-dark me-3">Página {{pagination.page}} de {{pagination.totalPages}}</span>
+                        <form id="searchForm" class="d-flex" onsubmit="event.preventDefault(); searchProductById();">
+                            <input 
+                              type="text"
+                              id="searchIdInput"
+                              class="form-control form-control-sm me-2"
+                              placeholder="Buscar por ID"
+                            />
+                            <button class="btn btn-sm btn-outline-light" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
+                {{!-- Filtros --}}
+                <form method="GET" action="/api/products/view" class="d-flex gap-2 flex-wrap">
+                    <input type="text" name="query" class="form-control form-control-sm" style="width: 150px;" placeholder="Categoría..." value="{{pagination.query}}" />
+                    <select name="status" class="form-select form-select-sm" style="width: auto;">
+                        <option value="">Todos</option>
+                        <option value="available" {{#if (eq pagination.status 'available')}}selected{{/if}}>Disponibles </option>
+                        <option value="unavailable" {{#if (eq pagination.status 'unavailable')}}selected{{/if}}>Sin stock</option>
+                    </select>
+                    <select name="sort" class="form-select form-select-sm" style="width: auto;">
+                        <option value="">Sin ordenar</option>
+                        <option value="asc" {{#if (eq pagination.sort 'asc')}}selected{{/if}}>Precio: Menor a Mayor</option>
+                        <option value="desc" {{#if (eq pagination.sort 'desc')}}selected{{/if}}>Precio: Mayor a Menor</option>
+                    </select>
+                    <select name="limit" class="form-select form-select-sm" style="width: auto;">
+                        <option value="5" {{#if (eq pagination.limit 5)}}selected{{/if}}>5 por página</option>
+                        <option value="10" {{#if (eq pagination.limit 10)}}selected{{/if}}>10 por página</option>
+                        <option value="20" {{#if (eq pagination.limit 20)}}selected{{/if}}>20 por página</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </form>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -90,7 +114,7 @@
                                 </td>
                                 <td>{{this.category}}</td>
                                 <td class="text-end">
-                                    <a href="/products/api/{{this._id}}" class="btn btn-sm btn-info me-1" title="Ver detalle">
+                                    <a href="/api/products/{{this._id}}" class="btn btn-sm btn-info me-1" title="Ver detalle">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-danger" title="Eliminar" onclick="deleteProduct('{{this._id}}')">
@@ -108,6 +132,32 @@
                             {{/each}}
                         </tbody>
                     </table>
+                </div>
+            </div>
+            {{!-- Paginación --}}
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    {{#if pagination.hasPrevPage}}
+                    <a href="/api/products/view?page={{pagination.prevPage}}&limit={{pagination.limit}}{{#if pagination.query}}&query={{pagination.query}}{{/if}}{{#if pagination.sort}}&sort={{pagination.sort}}{{/if}}{{#if pagination.status}}&status={{pagination.status}}{{/if}}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                    {{else}}
+                    <button class="btn btn-sm btn-outline-secondary" disabled>
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    {{/if}}
+                </div>
+                <span class="text-muted">Página {{pagination.page}} de {{pagination.totalPages}}</span>
+                <div>
+                    {{#if pagination.hasNextPage}}
+                    <a href="/api/products/view?page={{pagination.nextPage}}&limit={{pagination.limit}}{{#if pagination.query}}&query={{pagination.query}}{{/if}}{{#if pagination.sort}}&sort={{pagination.sort}}{{/if}}{{#if pagination.status}}&status={{pagination.status}}{{/if}}" class="btn btn-sm btn-outline-primary">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {{else}}
+                    <button class="btn btn-sm btn-outline-secondary" disabled>
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                    {{/if}}
                 </div>
             </div>
                 </div>

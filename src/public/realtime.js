@@ -1,9 +1,14 @@
 // Lógica de productos en tiempo real via Socket.io.
 const socket = io();
 let username = null;
+let currentPage = 1;
 
 const contenidoTabla = document.getElementById("productsTableBody");
 const btn = document.getElementById("addProductButton");
+const prevPageBtn = document.getElementById("prevPageBtn");
+const nextPageBtn = document.getElementById("nextPageBtn");
+const paginationText = document.getElementById("paginationText");
+const pageInfo = document.getElementById("pageInfo");
 
 btn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -32,6 +37,19 @@ contenidoTabla.addEventListener("click", (e) => {
     }
 });
 
+// Paginación
+prevPageBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        socket.emit("requestPage", { page: currentPage, limit: 10 });
+    }
+});
+
+nextPageBtn.addEventListener("click", () => {
+    currentPage++;
+    socket.emit("requestPage", { page: currentPage, limit: 10 });
+});
+
 Swal.fire({
     title: "¡Bienvenido!",
     text: "Ingresa tu nombre de usuario:",
@@ -58,9 +76,11 @@ socket.on("newUser", (username) => {
     }).showToast();
 });
 
-socket.on("products", (products) => {
+socket.on("products", (data) => {
+    currentPage = data.page;
     contenidoTabla.innerHTML = "";
-    const render = products
+
+    const render = data.docs
         .map((prod) => {
             return `<tr>
             <td>${prod.title}</td>
@@ -69,10 +89,16 @@ socket.on("products", (products) => {
             <td>$${prod.price}</td>
             <td>${prod.stock}</td>
             <td>${prod.category}</td>
-            <td><button class="btn btn-danger delete-btn" data-id="${prod._id}">Eliminar</button></td>
+            <td><button class="btn btn-danger btn-sm delete-btn" data-id="${prod._id}">Eliminar</button></td>
         </tr>`;
         })
         .join("");
 
     contenidoTabla.innerHTML = render;
+
+    // Actualizar controles de paginación
+    pageInfo.textContent = `Página ${data.page} de ${data.totalPages}`;
+    paginationText.textContent = `Página ${data.page} de ${data.totalPages}`;
+    prevPageBtn.disabled = !data.hasPrevPage;
+    nextPageBtn.disabled = !data.hasNextPage;
 });

@@ -121,9 +121,10 @@ socketServer.on('connection', async(socket) => {
 	})
 });
 
+const PORT = process.env.PORT || 8080;
+
 initMongoDB()
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.log(err));
 
-
-httpServer.listen(8080, () => console.log("Server running on port 8080"));
+httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
